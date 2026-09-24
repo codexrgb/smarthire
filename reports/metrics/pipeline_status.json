@@ -1,0 +1,7 @@
+{
+  "is_demo_mode": false,
+  "warning_message": null,
+  "resumes_count": 960,
+  "jobs_count": 200,
+  "best_classifier": "LogisticRegression"
+}

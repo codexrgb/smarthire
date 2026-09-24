@@ -1,0 +1,1 @@
+"""Resume document parsing module."""

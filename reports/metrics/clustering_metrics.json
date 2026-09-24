@@ -1,0 +1,80 @@
+{
+  "selected_k_elbow": 5,
+  "n_clusters": 5,
+  "inertia": 167.65,
+  "silhouette_score": 0.0595,
+  "k_values": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "silhouette_scores": [
+    0.024467265487846602,
+    0.03570358354926398,
+    0.04518949410418818,
+    0.05949828352065371,
+    0.06989822803675465,
+    0.08018570490123515,
+    0.08548964013729905,
+    0.10180069762648243,
+    0.11081926174729567
+  ],
+  "best_silhouette_k": 10,
+  "max_silhouette_score": 0.1108,
+  "best_silhouette_score": 0.1108,
+  "k_details": [
+    {
+      "k": 2,
+      "inertia": 182.46,
+      "silhouette_score": 0.0245
+    },
+    {
+      "k": 3,
+      "inertia": 177.33,
+      "silhouette_score": 0.0357
+    },
+    {
+      "k": 4,
+      "inertia": 172.39,
+      "silhouette_score": 0.0452
+    },
+    {
+      "k": 5,
+      "inertia": 167.65,
+      "silhouette_score": 0.0595
+    },
+    {
+      "k": 6,
+      "inertia": 163.29,
+      "silhouette_score": 0.0699
+    },
+    {
+      "k": 7,
+      "inertia": 158.64,
+      "silhouette_score": 0.0802
+    },
+    {
+      "k": 8,
+      "inertia": 154.77,
+      "silhouette_score": 0.0855
+    },
+    {
+      "k": 9,
+      "inertia": 149.33,
+      "silhouette_score": 0.1018
+    },
+    {
+      "k": 10,
+      "inertia": 146.2,
+      "silhouette_score": 0.1108
+    }
+  ],
+  "selection_explanation": "Elbow Method and Silhouette Score may suggest different K values. The selected K is based on the declared selection criterion.",
+  "total_jobs_clustered": 200
+}

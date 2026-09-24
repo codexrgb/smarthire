@@ -1,0 +1,46 @@
+# Python / Byte-compiled / Environment
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+
+# Environment Variables
+.env
+*.log
+
+# Data & Models (ignore large raw files if needed, but allow synthetic demo data)
+data/raw/*.zip
+data/raw/*.tar.gz
+
+# Streamlit
+.streamlit/
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
