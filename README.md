@@ -1,4 +1,4 @@
-# SMART HIRE
+# SMART HIRE -->
 ### Resume-to-Job Matching & Career Guidance Engine
 
 > **IMPORTANT NOTICE:**
