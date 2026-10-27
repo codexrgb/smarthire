@@ -1,0 +1,6 @@
+Temporary Candidate Document
+Email: [REDACTED]
+
+Short summary for temporary resume upload testing.
+Technical skills: Python, Docker, SQL, Git.
+This resume will be deleted as part of the candidate portfolio management test.

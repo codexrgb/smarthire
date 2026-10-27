@@ -1,0 +1,28 @@
+Jane Doe
+Lead Machine Learning & Full-Stack Software Engineer
+Email: [REDACTED]
+Phone: [REDACTED]
+
+PROFESSIONAL SUMMARY
+Highly accomplished Senior Software Engineer with 8+ years developing scalable AI/ML pipelines, FastAPI web backends, and responsive React web applications. Proven track record in predictive modeling, TF-IDF lexical retrieval, natural language processing, and cloud deployment with Docker and PostgreSQL.
+
+CORE TECHNICAL SKILLS
+Programming: Python, TypeScript, JavaScript, SQL
+Machine Learning & NLP: Scikit-learn, TF-IDF, Cosine Similarity, Pandas, NumPy, NLP, Regex
+Frameworks & Libraries: FastAPI, React, Tailwind CSS, Uvicorn, SQLAlchemy
+DevOps & Infrastructure: Docker, Git, Linux, PostgreSQL, REST APIs
+
+PROFESSIONAL EXPERIENCE
+Senior Machine Learning Engineer | Nexus AI Labs (2022 - Present)
+- Designed and productionized resume-to-job matching engines using TF-IDF feature extraction and cosine vectorization.
+- Deployed authenticated REST APIs in FastAPI with JWT role-based access control and isolated tenant permissions.
+- Architected enterprise frontends using React 19, TypeScript, and Tailwind CSS.
+- Automated Docker containerization and unit/integration testing with 95%+ code coverage.
+
+Full-Stack Developer | DataCraft Technologies (2018 - 2022)
+- Built high-performance data processing pipelines in Python and Pandas.
+- Implemented heuristic skill matching and job recommendation systems.
+- Integrated PostgreSQL databases with optimized indexing and migration workflows.
+
+EDUCATION
+Bachelor of Science in Computer Science | Institute of Technology

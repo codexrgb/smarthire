@@ -44,6 +44,8 @@ data/raw/*.tar.gz
 .pytest_cache/
 .coverage
 htmlcov/
+test-results/
+playwright-report/
 
 # Local databases & private storage
 *.db

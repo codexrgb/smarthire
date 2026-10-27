@@ -211,9 +211,10 @@ export const CandidateDashboard: React.FC = () => {
                     disabled={deletingId === res.id}
                     className="text-xs font-semibold px-2.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 flex items-center gap-1"
                     title="Delete resume"
+                    aria-label={`Delete ${res.original_filename}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                    <span className="sr-only">Delete</span>
+                    <span className="sr-only">Delete {res.original_filename}</span>
                   </button>
                 </div>
               </div>
