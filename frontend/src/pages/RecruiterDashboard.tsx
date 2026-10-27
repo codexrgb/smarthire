@@ -144,8 +144,14 @@ export const RecruiterDashboard: React.FC = () => {
                     <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100 block">
                       {cand.predicted_category}
                     </span>
-                    <span className="text-[11px] text-slate-400 mt-0.5 block">
-                      {(cand.category_confidence * 100).toFixed(0)}% conf
+                    <span className="text-[11px] font-medium capitalize mt-0.5 block text-slate-500">
+                      {cand.status === 'shortlist' || cand.status === 'shortlisted' ? (
+                        <span className="text-emerald-600 font-semibold">Shortlisted</span>
+                      ) : cand.status === 'reject' || cand.status === 'rejected' ? (
+                        <span className="text-rose-600 font-semibold">Declined</span>
+                      ) : (
+                        <span>Pending Review</span>
+                      )}
                     </span>
                   </div>
                 </div>

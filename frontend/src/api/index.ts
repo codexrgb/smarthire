@@ -131,6 +131,13 @@ export const getCurrentUserProfile = async (): Promise<User> => {
   return apiClient<User>('/api/v1/auth/me');
 };
 
+export const updateUserProfile = async (payload: { full_name?: string }): Promise<User> => {
+  return apiClient<User>('/api/v1/auth/me', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+};
+
 // Recruiter Portal (RBAC Protected)
 export const getRecruiterCandidates = async (): Promise<CandidateSummary[]> => {
   return apiClient<CandidateSummary[]>('/api/v1/recruiter/candidates');

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from src.backend.config import settings
 from src.backend.database import get_db
 from src.backend.models.user import User
-from src.backend.schemas.auth import UserRegister, UserLogin, UserOut, TokenResponse
+from src.backend.schemas.auth import UserRegister, UserLogin, UserOut, UserUpdate, TokenResponse
 from src.backend.security.hashing import hash_password, verify_password
 from src.backend.security.auth import create_access_token, get_current_user
 
@@ -85,4 +85,33 @@ def get_current_user_profile(
     user = db.query(User).filter(User.id == current_user["id"]).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    return user
+
+
+@router.patch("/me", response_model=UserOut)
+def update_current_user_profile(
+    payload: UserUpdate,
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Updates the authenticated user's profile (e.g. full name).
+    Enforces authorization: users can only update their own profile.
+    Email and role modifications are restricted to maintain audit consistency.
+    """
+    user = db.query(User).filter(User.id == current_user["id"]).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+    if payload.full_name is not None:
+        clean_name = payload.full_name.strip()
+        if len(clean_name) < 2:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Full name must contain at least 2 characters."
+            )
+        user.full_name = clean_name
+
+    db.commit()
+    db.refresh(user)
     return user

@@ -479,3 +479,138 @@ def test_password_longer_than_72_chars_rejected(client):
     }
     response = client.post("/api/v1/auth/register", json=payload)
     assert response.status_code == 422
+
+
+# =====================================================================
+# 7. Candidate Profile Viewing & Editing Workflows
+# =====================================================================
+
+def test_candidate_profile_update_success(client, candidate_a):
+    """Authenticated user can update their full name via PATCH /api/v1/auth/me."""
+    user, token = candidate_a
+    update_payload = {"full_name": "Dr. Candidate Alpha"}
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        json=update_payload,
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["full_name"] == "Dr. Candidate Alpha"
+    assert data["email"] == user.email
+
+    # Confirm retrieval via GET /api/v1/auth/me
+    get_resp = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert get_resp.status_code == 200
+    assert get_resp.json()["full_name"] == "Dr. Candidate Alpha"
+
+
+def test_candidate_profile_update_short_name_rejected(client, candidate_a):
+    """Updating full name to less than 2 characters must be rejected."""
+    _, token = candidate_a
+    response = client.patch(
+        "/api/v1/auth/me",
+        json={"full_name": "A"},
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code in [400, 422]
+
+
+def test_unauthenticated_profile_update_rejected(client):
+    """Unauthenticated request to update profile must return 401."""
+    response = client.patch("/api/v1/auth/me", json={"full_name": "Intruder"})
+    assert response.status_code == 401
+
+
+# =====================================================================
+# 8. Recruiter Action Persistence & Candidate Evaluation Status
+# =====================================================================
+
+def test_recruiter_status_persistence_shortlist_and_reject(client, db_session, candidate_a, recruiter_user):
+    """
+    Recruiter shortlist/reject actions must be recorded as audit actions
+    and reflected in candidate evaluation status in GET /recruiter/candidates.
+    """
+    user_a, _ = candidate_a
+    _, recruiter_token = recruiter_user
+
+    # Add a candidate resume
+    resume = Resume(
+        candidate_id=user_a.id,
+        original_filename="eval_test_resume.pdf",
+        storage_path="mock/eval.pdf",
+        file_size_bytes=800,
+        sha256="9" * 64,
+        clean_text="Evaluation test resume text",
+        predicted_category="Data Science",
+        category_confidence=0.91,
+        extracted_skills=json.dumps(["Python"])
+    )
+    db_session.add(resume)
+    db_session.commit()
+    db_session.refresh(resume)
+
+    # 1. Initial status before action should be 'pending'
+    init_resp = client.get("/api/v1/recruiter/candidates", headers={"Authorization": f"Bearer {recruiter_token}"})
+    assert init_resp.status_code == 200
+    candidates = init_resp.json()
+    cand_record = next((c for c in candidates if c["resume_id"] == resume.id), None)
+    assert cand_record is not None
+    assert cand_record["status"] == "pending"
+
+    # 2. Recruiter shortlists candidate
+    shortlist_resp = client.post(
+        "/api/v1/recruiter/actions",
+        json={
+            "action_type": "shortlist",
+            "target_entity_type": "resume",
+            "target_entity_id": resume.id,
+            "details": json.dumps({"note": "Passed preliminary resume filter"})
+        },
+        headers={"Authorization": f"Bearer {recruiter_token}"}
+    )
+    assert shortlist_resp.status_code == 200
+
+    # 3. GET /recruiter/candidates now reflects 'shortlist' status
+    after_shortlist_resp = client.get("/api/v1/recruiter/candidates", headers={"Authorization": f"Bearer {recruiter_token}"})
+    assert after_shortlist_resp.status_code == 200
+    cand_after = next((c for c in after_shortlist_resp.json() if c["resume_id"] == resume.id), None)
+    assert cand_after is not None
+    assert cand_after["status"] == "shortlist"
+
+    # 4. Recruiter declines candidate
+    reject_resp = client.post(
+        "/api/v1/recruiter/actions",
+        json={
+            "action_type": "reject",
+            "target_entity_type": "resume",
+            "target_entity_id": resume.id,
+            "details": json.dumps({"note": "Declined after portfolio review"})
+        },
+        headers={"Authorization": f"Bearer {recruiter_token}"}
+    )
+    assert reject_resp.status_code == 200
+
+    # 5. GET /recruiter/candidates now reflects 'reject' status
+    after_reject_resp = client.get("/api/v1/recruiter/candidates", headers={"Authorization": f"Bearer {recruiter_token}"})
+    assert after_reject_resp.status_code == 200
+    cand_rejected = next((c for c in after_reject_resp.json() if c["resume_id"] == resume.id), None)
+    assert cand_rejected is not None
+    assert cand_rejected["status"] == "reject"
+
+
+def test_candidate_forbidden_from_logging_recruiter_action(client, candidate_a):
+    """Candidate accounts cannot post recruiter audit actions."""
+    _, token = candidate_a
+    response = client.post(
+        "/api/v1/recruiter/actions",
+        json={
+            "action_type": "shortlist",
+            "target_entity_type": "resume",
+            "target_entity_id": "test-id"
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 403
+

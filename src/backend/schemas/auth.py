@@ -41,6 +41,10 @@ class UserLogin(BaseModel):
         return v.strip().lower()
 
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = Field(None, min_length=2, max_length=100, description="Updated full name for the profile")
+
+
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 

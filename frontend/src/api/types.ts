@@ -106,6 +106,7 @@ export interface CandidateSummary {
   category_confidence: number;
   file_size_bytes: number;
   uploaded_at: string;
+  status: string;
 }
 
 export interface ResumeSummaryOut {

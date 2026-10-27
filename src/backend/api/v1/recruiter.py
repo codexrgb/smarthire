@@ -27,6 +27,7 @@ class CandidateSummary(BaseModel):
     category_confidence: float
     file_size_bytes: int
     uploaded_at: str
+    status: str = "pending"
 
 
 class RecruiterActionLogRequest(BaseModel):
@@ -51,12 +52,31 @@ def list_candidates(
     db: Session = Depends(get_db)
 ):
     """
-    Returns candidate resumes. Strictly protected by RBAC; requires recruiter or admin credentials.
+    Returns candidate resumes with persistent evaluation status.
+    Strictly protected by RBAC; requires recruiter or admin credentials.
     Audit action is logged automatically.
     """
     resumes = db.query(Resume).order_by(Resume.uploaded_at.desc()).limit(50).all()
+    resume_ids = [r.id for r in resumes]
 
-    # Log action
+    # Map persisted recruiter actions (shortlist / reject) to current evaluation status
+    status_map = {}
+    if resume_ids:
+        actions = (
+            db.query(RecruiterAction)
+            .filter(
+                RecruiterAction.target_entity_type == "resume",
+                RecruiterAction.target_entity_id.in_(resume_ids)
+            )
+            .order_by(RecruiterAction.created_at.asc())
+            .all()
+        )
+        for act in actions:
+            norm_action = act.action_type.lower()
+            if norm_action in ["shortlist", "reject", "shortlisted", "rejected", "pending"]:
+                status_map[act.target_entity_id] = norm_action
+
+    # Log audit action
     audit = RecruiterAction(
         recruiter_id=current_recruiter["id"],
         action_type="list_candidates",
@@ -74,7 +94,8 @@ def list_candidates(
             predicted_category=r.predicted_category,
             category_confidence=r.category_confidence,
             file_size_bytes=r.file_size_bytes,
-            uploaded_at=r.uploaded_at.isoformat()
+            uploaded_at=r.uploaded_at.isoformat(),
+            status=status_map.get(r.id, "pending")
         )
         for r in resumes
     ]

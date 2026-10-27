@@ -7,7 +7,7 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from 'react';
 import type { User } from '../api/types';
 import { setAuthToken, getAuthToken } from '../api/client';
-import { loginUser, registerUser, getCurrentUserProfile } from '../api';
+import { loginUser, registerUser, getCurrentUserProfile, updateUserProfile } from '../api';
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +25,7 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
+  updateProfile: (payload: { full_name: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -89,6 +90,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await login({ email: payload.email, password: payload.password });
   };
 
+  const updateProfile = async (payload: { full_name: string }) => {
+    const updatedUser = await updateUserProfile(payload);
+    setUser(updatedUser);
+  };
+
   const isRecruiter = user?.role === 'recruiter' || user?.role === 'admin';
   const isCandidate = user?.role === 'candidate';
 
@@ -105,6 +111,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         register,
         logout,
         refreshProfile,
+        updateProfile,
       }}
     >
       {children}
