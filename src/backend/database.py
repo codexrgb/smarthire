@@ -1,6 +1,6 @@
 """
 Database Connection & Session Management for SmartHire 2.0.
-Supports PostgreSQL (production) with SQLite support for local integration tests.
+Supports SQLite (development default), MySQL (local verification), and PostgreSQL.
 """
 
 import os
@@ -20,7 +20,8 @@ if settings.DATABASE_URL.startswith("sqlite"):
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args=connect_args,
-    pool_pre_ping=True
+    pool_pre_ping=True,
+    pool_recycle=3600
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

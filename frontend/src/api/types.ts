@@ -11,6 +11,9 @@ export interface User {
   full_name: string;
   role: UserRole;
   is_active: boolean;
+  login_count?: number;
+  last_login_at?: string | null;
+  is_first_login?: boolean;
   created_at: string;
 }
 

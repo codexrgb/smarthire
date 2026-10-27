@@ -110,6 +110,90 @@ describe('Candidate Workflows UI', () => {
       expect(screen.getByText(/Upload Your First Resume/i)).toBeInTheDocument();
     });
   });
+
+  it('displays first-time greeting and instructions for newly registered candidates', async () => {
+    vi.spyOn(authContext, 'useAuth').mockReturnValue({
+      user: {
+        id: 'cand-new',
+        email: 'divya@example.com',
+        full_name: 'divya sharma',
+        role: 'candidate',
+        is_active: true,
+        is_first_login: true,
+        login_count: 1,
+        created_at: '2026-10-27T00:00:00Z',
+      },
+      token: 'valid-token',
+      isLoading: false,
+      isAuthenticated: true,
+      isRecruiter: false,
+      isCandidate: true,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      refreshProfile: vi.fn(),
+      updateProfile: vi.fn(),
+    });
+
+    vi.spyOn(api, 'getMyResumes').mockResolvedValue([]);
+    vi.spyOn(api, 'getJobs').mockResolvedValue([]);
+
+    render(
+      <MemoryRouter>
+        <CandidateDashboard />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      // First-time candidate heading: capitalized "divya" -> "Divya"
+      expect(screen.getByText('Welcome, Divya!')).toBeInTheDocument();
+      // First-time candidate subtext
+      expect(
+        screen.getByText('Welcome to SmartHire. Upload your resume to discover relevant jobs and analyze your skills.')
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('displays "Welcome back" greeting for returning candidates who logged in previously', async () => {
+    vi.spyOn(authContext, 'useAuth').mockReturnValue({
+      user: {
+        id: 'cand-returning',
+        email: 'divya@example.com',
+        full_name: 'divya sharma',
+        role: 'candidate',
+        is_active: true,
+        is_first_login: false,
+        login_count: 3,
+        created_at: '2026-10-25T00:00:00Z',
+      },
+      token: 'valid-token',
+      isLoading: false,
+      isAuthenticated: true,
+      isRecruiter: false,
+      isCandidate: true,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      refreshProfile: vi.fn(),
+      updateProfile: vi.fn(),
+    });
+
+    vi.spyOn(api, 'getMyResumes').mockResolvedValue([]);
+    vi.spyOn(api, 'getJobs').mockResolvedValue([]);
+
+    render(
+      <MemoryRouter>
+        <CandidateDashboard />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Welcome back, Divya!')).toBeInTheDocument();
+      expect(
+        screen.getByText(/extract validated technical skills, classify into industry categories/i)
+      ).toBeInTheDocument();
+    });
+  });
 });
 
 describe('Recruiter Evaluation Workflow UI', () => {

@@ -56,6 +56,9 @@ class UserOut(BaseModel):
     full_name: str
     role: str
     is_active: bool
+    login_count: int = 0
+    last_login_at: Optional[datetime] = None
+    is_first_login: bool = False
     created_at: datetime
 
 

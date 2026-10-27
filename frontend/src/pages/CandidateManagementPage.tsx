@@ -113,10 +113,10 @@ export const CandidateManagementPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Candidate Pipeline & Management
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Review parsed candidate profiles, predicted job categories, and maintain compliance
             audit logging.
           </p>
@@ -136,9 +136,9 @@ export const CandidateManagementPage: React.FC = () => {
       )}
 
       {/* Filter and Search Bar */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row gap-3">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs flex flex-col sm:flex-row gap-3 transition-colors">
         <div className="relative flex-1 rounded-md shadow-2xs">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
             <Search className="h-4 w-4" />
           </div>
           <input
@@ -146,7 +146,7 @@ export const CandidateManagementPage: React.FC = () => {
             placeholder="Search by resume filename..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+            className="block w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 rounded-lg text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
           />
         </div>
 
@@ -154,7 +154,7 @@ export const CandidateManagementPage: React.FC = () => {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
+            className="border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -166,7 +166,7 @@ export const CandidateManagementPage: React.FC = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white text-slate-700"
+            className="border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
           >
             <option value="all">All Statuses</option>
             <option value="pending">Pending Review</option>
@@ -177,7 +177,7 @@ export const CandidateManagementPage: React.FC = () => {
           <button
             type="button"
             onClick={fetchCandidates}
-            className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            className="px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Refresh
           </button>
@@ -185,7 +185,7 @@ export const CandidateManagementPage: React.FC = () => {
       </div>
 
       {/* Table Container */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
         {loading ? (
           <div className="py-16 text-center text-slate-400 text-sm">
             Fetching protected candidate records...
@@ -196,8 +196,8 @@ export const CandidateManagementPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-600">
-              <thead className="bg-slate-50 text-slate-500 font-semibold text-xs uppercase tracking-wider border-b border-slate-200">
+            <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 font-semibold text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="px-6 py-3.5">Candidate Document</th>
                   <th className="px-6 py-3.5">Predicted Family</th>
@@ -207,22 +207,22 @@ export const CandidateManagementPage: React.FC = () => {
                   <th className="px-6 py-3.5 text-right">Recruiter Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filtered.map((cand) => {
                   const s = (cand.status || 'pending').toLowerCase();
                   const isShortlisted = s === 'shortlist' || s === 'shortlisted';
                   const isRejected = s === 'reject' || s === 'rejected';
 
                   return (
-                    <tr key={cand.resume_id} className="hover:bg-slate-50/70 transition-colors">
+                    <tr key={cand.resume_id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2.5">
-                          <FileText className="h-4 w-4 text-indigo-600 flex-shrink-0" />
+                          <FileText className="h-4 w-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                           <div>
-                            <span className="font-semibold text-slate-900 block truncate max-w-[200px]">
+                            <span className="font-semibold text-slate-900 dark:text-white block truncate max-w-[200px]">
                               {cand.original_filename}
                             </span>
-                            <span className="text-xs text-slate-400 font-mono">
+                            <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
                               {(cand.file_size_bytes / 1024).toFixed(1)} KB
                             </span>
                           </div>
@@ -230,35 +230,35 @@ export const CandidateManagementPage: React.FC = () => {
                       </td>
 
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                           {cand.predicted_category}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 font-mono font-medium text-slate-800">
+                      <td className="px-6 py-4 font-mono font-medium text-slate-800 dark:text-slate-200">
                         {(cand.category_confidence * 100).toFixed(1)}%
                       </td>
 
                       <td className="px-6 py-4">
                         {isShortlisted ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                             <CheckCircle className="h-3 w-3" />
                             <span>Shortlisted</span>
                           </span>
                         ) : isRejected ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
                             <XCircle className="h-3 w-3" />
                             <span>Declined</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                             <Clock className="h-3 w-3" />
                             <span>Pending</span>
                           </span>
                         )}
                       </td>
 
-                      <td className="px-6 py-4 text-xs text-slate-500">
+                      <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
                         {new Date(cand.uploaded_at).toLocaleDateString()}
                       </td>
 
@@ -267,7 +267,7 @@ export const CandidateManagementPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleInspect(cand.resume_id)}
-                            className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+                            className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             title="Inspect candidate extracted skills and profile"
                           >
                             <Eye className="h-3.5 w-3.5" />
@@ -278,7 +278,7 @@ export const CandidateManagementPage: React.FC = () => {
                             type="button"
                             onClick={() => handleAction(cand.resume_id, 'shortlist')}
                             disabled={isShortlisted}
-                            className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors disabled:opacity-50"
                           >
                             <CheckCircle className="h-3.5 w-3.5" />
                             <span>{isShortlisted ? 'Shortlisted' : 'Shortlist'}</span>
@@ -288,7 +288,7 @@ export const CandidateManagementPage: React.FC = () => {
                             type="button"
                             onClick={() => handleAction(cand.resume_id, 'reject')}
                             disabled={isRejected}
-                            className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-md bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/60 transition-colors disabled:opacity-50"
                           >
                             <XCircle className="h-3.5 w-3.5" />
                             <span>{isRejected ? 'Declined' : 'Decline'}</span>
@@ -307,47 +307,47 @@ export const CandidateManagementPage: React.FC = () => {
       {/* Candidate Profile Inspection Modal */}
       {inspectModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-xl border border-slate-200 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-xl border border-slate-200 dark:border-slate-800 space-y-5 transition-colors">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-indigo-600" />
-                <h3 className="font-bold text-slate-900 text-base">Candidate Profile Inspection</h3>
+                <FileText className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">Candidate Profile Inspection</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setInspectModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 p-1 rounded-lg"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {loadingDetail ? (
-              <div className="py-12 text-center text-sm text-slate-400">Loading parsed candidate profile...</div>
+              <div className="py-12 text-center text-sm text-slate-400 dark:text-slate-500">Loading parsed candidate profile...</div>
             ) : inspectCandidate ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4 text-xs">
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-slate-400 block font-medium">Document</span>
-                    <span className="font-semibold text-slate-900 mt-0.5 block truncate">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-500 block font-medium">Document</span>
+                    <span className="font-semibold text-slate-900 dark:text-white mt-0.5 block truncate">
                       {inspectCandidate.original_filename}
                     </span>
                   </div>
-                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span className="text-slate-400 block font-medium">Predicted Career Family</span>
-                    <span className="font-semibold text-indigo-700 mt-0.5 block">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-400 dark:text-slate-500 block font-medium">Predicted Career Family</span>
+                    <span className="font-semibold text-indigo-700 dark:text-indigo-300 mt-0.5 block">
                       {inspectCandidate.predicted_category} ({(inspectCandidate.category_confidence * 100).toFixed(1)}%)
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-indigo-600" />
+                  <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                     <span>Extracted Technical Skills ({inspectCandidate.extracted_skills.length})</span>
                   </h4>
                   {inspectCandidate.extracted_skills.length === 0 ? (
-                    <p className="text-xs text-slate-400 italic">No recognized lexicon skills detected.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 italic">No recognized lexicon skills detected.</p>
                   ) : (
                     <div className="flex flex-wrap gap-1.5">
                       {inspectCandidate.extracted_skills.map((skill) => (
@@ -358,15 +358,15 @@ export const CandidateManagementPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                  <h4 className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                     PII-Sanitized Text Preview
                   </h4>
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-slate-700 max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-mono text-slate-700 dark:text-slate-300 max-h-48 overflow-y-auto whitespace-pre-wrap leading-relaxed">
                     {inspectCandidate.extracted_text_preview || 'No preview available.'}
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -394,7 +394,7 @@ export const CandidateManagementPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setInspectModalOpen(false)}
-                    className="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors"
+                    className="text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                   >
                     Close
                   </button>

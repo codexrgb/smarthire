@@ -2,7 +2,7 @@
 Authentication Routes (Register, Login, Profile) for SmartHire 2.0 API.
 """
 
-from datetime import timedelta
+from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -32,19 +32,28 @@ def register_user(payload: UserRegister, db: Session = Depends(get_db)):
         email=payload.email.lower().strip(),
         hashed_password=hashed_pw,
         full_name=payload.full_name.strip(),
-        role=payload.role
+        role=payload.role,
+        login_count=0,
+        last_login_at=None,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    return user
+    user_out = UserOut.model_validate(user)
+    user_out.is_first_login = True
+    return user_out
 
 
 @router.post("/login", response_model=TokenResponse)
 def login_user(payload: UserLogin, db: Session = Depends(get_db)):
     """Authenticates user credentials and returns a signed JWT access token."""
-    user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
+    user = (
+        db.query(User)
+        .filter(User.email == payload.email.lower().strip())
+        .with_for_update()
+        .first()
+    )
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,6 +67,14 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
             detail="Account is inactive."
         )
 
+    # First-time status is determined prior to incrementing login_count
+    is_first = (user.login_count == 0 or user.last_login_at is None)
+
+    user.login_count = (user.login_count or 0) + 1
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(user)
+
     token_data = {
         "sub": str(user.id),
         "email": user.email,
@@ -69,10 +86,13 @@ def login_user(payload: UserLogin, db: Session = Depends(get_db)):
         expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
+    user_out = UserOut.model_validate(user)
+    user_out.is_first_login = is_first
+
     return TokenResponse(
         access_token=token,
         token_type="bearer",
-        user=user
+        user=user_out
     )
 
 
@@ -85,7 +105,9 @@ def get_current_user_profile(
     user = db.query(User).filter(User.id == current_user["id"]).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    return user
+    user_out = UserOut.model_validate(user)
+    user_out.is_first_login = (user.login_count <= 1)
+    return user_out
 
 
 @router.patch("/me", response_model=UserOut)
@@ -114,4 +136,6 @@ def update_current_user_profile(
 
     db.commit()
     db.refresh(user)
-    return user
+    user_out = UserOut.model_validate(user)
+    user_out.is_first_login = (user.login_count <= 1)
+    return user_out

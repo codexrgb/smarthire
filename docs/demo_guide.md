@@ -196,7 +196,7 @@ npx playwright test
   python -m src.backend.services.retention
   ```
 
-### 4. PostgreSQL Integration Status
-- The database schema, SQLAlchemy models, and Alembic migrations are designed for PostgreSQL.
-- In the current development and demonstration environment, migrations and tests are executed against **SQLite** (`sqlite:///./smarthire_dev.db`).
-- **PostgreSQL integration remains explicitly UNVERIFIED against a live PostgreSQL server** due to the absence of a running PostgreSQL or Docker service on the local host.
+### 4. Multi-Database Architecture & Verification Status
+- **SQLite (Development Default — Verified):** The primary local development database (`sqlite:///./smarthire_dev.db`). The automated 92-test backend test suite runs hermetically and passes against in-memory SQLite (`sqlite:///:memory:`).
+- **MySQL (Live Verified on MySQL 5.7+):** Fully verified against a live local MySQL instance (`MySQL57` on port 3306) via `PyMySQL` and connection recycling (`pool_recycle=3600`). All Alembic migrations, foreign key cascades, indexes, isolated CRUD operations, and full Playwright browser E2E workflows have been tested and verified passing on the dedicated `smarthire_test` database.
+- **PostgreSQL (Alembic Schema Ready — Unverified):** The database schema, SQLAlchemy models, and Alembic migrations are designed for PostgreSQL compatibility, but integration against a live PostgreSQL server remains explicitly UNVERIFIED due to the absence of a running PostgreSQL service on the local host.

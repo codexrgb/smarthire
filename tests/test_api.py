@@ -311,7 +311,7 @@ def test_auth_register_and_login(client):
     dup_resp = client.post("/api/v1/auth/register", json=register_payload)
     assert dup_resp.status_code == 409
 
-    # Login
+    # Login 1 (First Login)
     login_payload = {
         "email": "newuser@example.com",
         "password": "SecurePassword123!"
@@ -321,14 +321,33 @@ def test_auth_register_and_login(client):
     token_data = login_resp.json()
     assert "access_token" in token_data
     assert token_data["token_type"] == "bearer"
+    assert token_data["user"]["is_first_login"] is True
+    assert token_data["user"]["login_count"] == 1
+    assert token_data["user"]["last_login_at"] is not None
 
-    # Profile inspection
+    # Profile inspection during first login session
     me_resp = client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {token_data['access_token']}"}
     )
     assert me_resp.status_code == 200
     assert me_resp.json()["email"] == "newuser@example.com"
+    assert me_resp.json()["is_first_login"] is True
+
+    # Login 2 (Returning User Login)
+    login_resp_2 = client.post("/api/v1/auth/login", json=login_payload)
+    assert login_resp_2.status_code == 200
+    token_data_2 = login_resp_2.json()
+    assert token_data_2["user"]["is_first_login"] is False
+    assert token_data_2["user"]["login_count"] == 2
+
+    # Profile inspection after returning login
+    me_resp_2 = client.get(
+        "/api/v1/auth/me",
+        headers={"Authorization": f"Bearer {token_data_2['access_token']}"}
+    )
+    assert me_resp_2.status_code == 200
+    assert me_resp_2.json()["is_first_login"] is False
 
 
 def test_auth_login_invalid_password(client):

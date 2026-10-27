@@ -28,10 +28,10 @@ export const ModelAnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Model Analytics & Provenance Diagnostics
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Transparent inspection of classical machine learning artifacts, vectorizers, and dataset
           authenticity markers.
         </p>
@@ -76,30 +76,30 @@ export const ModelAnalyticsPage: React.FC = () => {
       </div>
 
       {/* Saved Joblib Models Inspection Card */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-        <h3 className="font-bold text-slate-900 text-base mb-1">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
+        <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">
           Production Model Artifacts (Disk Verification)
         </h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Inspecting serialized <code>models/*.pkl</code> artifacts on backend storage
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+          Inspecting serialized <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">models/*.pkl</code> artifacts on backend storage
         </p>
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-slate-400">Verifying model files...</div>
+          <div className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">Verifying model files...</div>
         ) : !status?.models_loaded ? (
-          <div className="py-8 text-center text-sm text-slate-400">Unable to inspect models.</div>
+          <div className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">Unable to inspect models.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {Object.entries(status.models_loaded).map(([name, isLoaded]) => (
               <div
                 key={name}
-                className="p-3.5 rounded-lg border border-slate-200 bg-slate-50/50 flex items-center justify-between"
+                className="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between"
               >
                 <div>
-                  <span className="font-mono text-xs font-semibold text-slate-800 block">
+                  <span className="font-mono text-xs font-semibold text-slate-800 dark:text-slate-200 block">
                     {name}
                   </span>
-                  <span className="text-[10px] text-slate-400">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
                     {name.includes('vectorizer')
                       ? 'Feature Extractor'
                       : name.includes('clustering')
@@ -110,9 +110,9 @@ export const ModelAnalyticsPage: React.FC = () => {
                   </span>
                 </div>
                 {isLoaded ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0" />
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                 ) : (
-                  <XCircle className="h-5 w-5 text-rose-500 flex-shrink-0" />
+                  <XCircle className="h-5 w-5 text-rose-500 dark:text-rose-400 flex-shrink-0" />
                 )}
               </div>
             ))}
@@ -122,12 +122,12 @@ export const ModelAnalyticsPage: React.FC = () => {
 
       {/* Clustering & Feature Engineering Disclosures */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-          <h4 className="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
-            <Info className="h-4 w-4 text-indigo-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
+          <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-2 flex items-center gap-2">
+            <Info className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
             <span>Clustering Silhouette Trade-Off</span>
           </h4>
-          <p className="text-xs text-slate-600 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
             In high-dimensional sparse TF-IDF spaces, Euclidean distances concentrate near
             orthogonal boundaries. Higher silhouette scores at K=10 (0.1108) vs K=5 (0.0528) arise
             from micro-clusters on the unit hypersphere rather than superior semantic coherence. K=5
@@ -135,13 +135,13 @@ export const ModelAnalyticsPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-          <h4 className="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-purple-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
+          <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-2 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             <span>Word-Boundary Skill Extraction</span>
           </h4>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Skills are extracted strictly using word-boundary regular expressions (<code>\b(AI)\b</code>)
+          <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+            Skills are extracted strictly using word-boundary regular expressions (<code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-indigo-600 dark:text-indigo-400">\b(AI)\b</code>)
             against an extendable master technical skill dictionary. This explicitly prevents false
             positive collisions (e.g., matching 'AI' in 'email' or 'claim').
           </p>

@@ -4,7 +4,7 @@ User Model for Authentication and Role-Based Access Control.
 
 import uuid
 from datetime import datetime, timezone
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, Integer
 from sqlalchemy.orm import relationship
 
 from src.backend.database import Base
@@ -19,6 +19,8 @@ class User(Base):
     full_name = Column(String(255), nullable=False, default="")
     role = Column(String(50), nullable=False, default="candidate")  # 'candidate', 'recruiter', 'admin'
     is_active = Column(Boolean, nullable=False, default=True)
+    login_count = Column(Integer, nullable=False, default=0, server_default="0")
+    last_login_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     resumes = relationship("Resume", back_populates="candidate", cascade="all, delete-orphan")

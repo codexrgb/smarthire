@@ -4,11 +4,11 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-3178C6.svg)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4%2B-38B2AC.svg)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0%2B-38B2AC.svg)](https://tailwindcss.com/)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Automated-2EAD33.svg)](https://playwright.dev/)
 [![Pytest](https://img.shields.io/badge/Pytest-92%20Passed-brightgreen.svg)](https://pytest.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-20%20Passed-success.svg)](https://vitest.dev/)
-[![Database](https://img.shields.io/badge/PostgreSQL%20%2F%20SQLite-Alembic%20Ready-blue.svg)](https://alembic.sqlalchemy.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-30%20Passed-success.svg)](https://vitest.dev/)
+[![Database](https://img.shields.io/badge/Database-SQLite%20%26%20MySQL%20(Verified)%20%7C%20Postgres%20Ready-blue.svg)](https://alembic.sqlalchemy.org/)
 
 > **Classical Machine Learning Architecture Notice:**  
 > SmartHire runs entirely on deterministic, classical machine learning and natural language processing techniques — including **TF-IDF Vectorization, Logistic Regression, Linear Support Vector Machines (SVM), Cosine Similarity, K-Means Clustering, PCA, and Non-Negative Matrix Factorization (NMF)**.  
@@ -74,44 +74,64 @@ flowchart TD
 
 ## 📸 Visual Showcase (Actual Application Captures)
 
-All screenshots below are authentic visual captures taken by Playwright real-browser automation against the running SmartHire 2.0 application using synthetic test data.
+All screenshots below are authentic visual captures taken by Playwright real-browser automation against the running SmartHire 2.0 application using synthetic test data. For capture instructions and the full image catalog, see **[`reports/screenshots/README.md`](reports/screenshots/README.md)**.
 
-### 1. Resume Parser & Classical NLP Classifier
+### 1. Candidate Experience & Theme Support
+
+| Light Mode (First-Time Welcome) | Dark Mode |
+|---|---|
+| ![Candidate Dashboard Light](reports/screenshots/02_candidate_dashboard.png) | ![Candidate Dashboard Dark](reports/screenshots/02b_candidate_dashboard_dark.png) |
+
+> **Dynamic Onboarding vs. Returning Experience:**<br/>
+> First-time logins display personalized onboarding guidance (`Welcome, {first_name}!`), while returning users receive analytical system summaries (`Welcome back, {first_name}!`), as demonstrated in the returning session capture below:
+
+![Candidate Dashboard Returning](reports/screenshots/02c_candidate_dashboard_returning.png)
+
+---
+
+### 2. Resume Parser & Classical NLP Classifier
 Uploads resumes in `.pdf`, `.docx`, or `.txt` format, generates a SHA-256 collision-resistant fingerprint, predicts the domain category with model confidence, extracts normalized technical skill chips, and computes real-time job recommendations.
 
 ![Resume Parser & NLP Classifier](reports/screenshots/03_resume_analyzer_parsed.png)
 
 ---
 
-### 2. Transparent 3-Factor Job Compatibility Details
+### 3. Transparent 3-Factor Job Compatibility Details
 Breaks down the compatibility between candidate resumes and job postings into three distinct, explainable dimensions: **Text Similarity (50%)**, **Skill Overlap (30%)**, and **Experience Match (20%)**. Clearly highlights matched skills vs. missing skill gaps, complete with the non-probabilistic academic guardrail notice.
 
 ![Job Match Compatibility Details](reports/screenshots/04_job_match_details.png)
 
 ---
 
-### 3. Recruiter Command Center
+### 4. Technical Skill-Gap Analysis
+Isolates candidate competencies against target role requirements to compute Jaccard overlap ratios, categorizes strengths into matched competency pills (green), highlights missing requirements (rose), and presents recommended upskilling resources.
+
+![Technical Skill-Gap Analysis](reports/screenshots/04b_skill_gap_analysis.png)
+
+---
+
+### 5. Recruiter Command Center
 Provides recruiters with high-level pipeline metrics (Total Candidates, Active Resumes, Review Audits) and direct workflow navigation.
 
 ![Recruiter Dashboard](reports/screenshots/08_recruiter_dashboard.png)
 
 ---
 
-### 4. PII-Sanitized Candidate Profile Inspection
+### 6. PII-Sanitized Candidate Profile Inspection
 Recruiters can inspect candidate qualifications, extracted skills, and raw resume text previews where sensitive personal identifiers (emails and telephone numbers) are automatically redacted using regular expression masking (`[EMAIL MASKED]`, `[PHONE MASKED]`).
 
 ![Candidate Profile Inspection](reports/screenshots/09_recruiter_candidate_inspected.png)
 
 ---
 
-### 5. Candidate Shortlist & Pipeline Action Workflow
+### 7. Candidate Shortlist & Pipeline Action Workflow
 Recruiters can triage applicants with one-click **Shortlist** or **Decline** actions. Every action updates the candidate status immediately and writes an immutable audit record to the `recruiter_actions` database table.
 
 ![Recruiter Candidate Shortlisted](reports/screenshots/10_recruiter_candidate_shortlisted.png)
 
 ---
 
-### 6. Role-Based Access Control (RBAC) Security Boundary
+### 8. Role-Based Access Control (RBAC) Security Boundary
 Demonstrating security enforcement: when an authenticated candidate account attempts to access protected recruiter routes (`/recruiter/candidates`), the navigation guard immediately intercepts the request, returning a clean 403 Forbidden screen with zero data leakage.
 
 ![Authorization Failure Guard](reports/screenshots/07_authorization_failure_blocked.png)
@@ -122,9 +142,11 @@ Demonstrating security enforcement: when an authenticated candidate account atte
 
 ### 👤 Candidate Experience
 - **Multi-Format Ingestion:** Supports `.pdf`, `.docx`, and `.txt` files up to 10MB, plus raw text input.
+- **Adaptive Theme System:** Built-in Light, Dark, and System theme toggle with zero-flicker pre-render initialization and `localStorage` persistence.
+- **Dynamic Welcome & Identity Handling:** Distinguishes first-time users from returning candidates with personalized greetings and casing preservation (`divya` → `Divya`, `O'Connor` preserved).
 - **Instant NLP Classification:** Predicts job family categories (Data Science, Web Development, Java Developer, DevOps, etc.) with confidence metrics.
 - **Lexical Skill Extraction:** Word-boundary regex matching isolates standalone programming terms (`C`, `R`, `AI`, `Go`) from common English substrings (`claim`, `mail`, `good`).
-- **Explainable Job Matching:** Displays top job opportunities with overall compatibility score and detailed factor breakdowns.
+- **Explainable Job Matching & Skill Gaps:** Displays top job opportunities with 3-factor score breakdowns and targeted upskilling recommendations.
 - **Portfolio Management:** View, inspect, and individually delete uploaded resumes with native browser confirmation prompts.
 - **Account Customization:** Self-service profile editing and password management.
 
@@ -249,8 +271,9 @@ SmartHire maintains a rigorous, multi-tiered test suite spanning backend unit te
 │ Test Suite          │ Framework     │ Test Count   │ Status            │
 ├─────────────────────┼───────────────┼──────────────┼───────────────────┤
 │ Backend Unit & API  │ Pytest        │ 92 Passed    │ Passing (100%)    │
-│ Frontend Component  │ Vitest        │ 20 Passed    │ Passing (100%)    │
+│ Frontend Component  │ Vitest        │ 30 Passed    │ Passing (100%)    │
 │ Browser End-to-End  │ Playwright    │ 3 Suites     │ Passing (100%)    │
+│ MySQL Verification  │ PyMySQL/Schema│ 5/5 Checks   │ Passing (100%)    │
 │ Production Bundle   │ TypeScript    │ Zero Errors  │ Clean Build       │
 └─────────────────────┴───────────────┴──────────────┴───────────────────┘
 ```
@@ -261,11 +284,17 @@ python -m pytest
 ```
 *Covers ML feature extraction, classification benchmarks, data provenance, notebook repairs, security sanitization, FastAPI REST endpoints, RBAC policies, and guest retention lifecycle.*
 
-### Run Frontend Vitest Suite (20 Tests)
+### Run Frontend Vitest Suite (30 Tests)
 ```powershell
 npm --prefix frontend test -- --run
 ```
-*Covers React UI components, navigation guards, heuristic badges, provenance banners, and candidate workflows.*
+*Covers React UI components, Theme toggle, Name normalization, navigation guards, heuristic badges, provenance banners, and candidate workflows.*
+
+### Run Dedicated MySQL Database Verification (5 Checks)
+```powershell
+python scripts/verify_mysql.py
+```
+*Verifies database connectivity, MySQL 5.7+ InnoDB engine, Alembic migrations, structural schema indexes/foreign keys, and isolated transactional CRUD integrity.*
 
 ### Run Playwright Browser E2E Automation
 ```powershell
@@ -300,10 +329,10 @@ To maintain strict scientific and professional integrity, SmartHire 2.0 explicit
 - It is explicitly marked `is_probability: false` in all API responses and client interfaces.
 - **It is an empirical ranking index, not a statistical probability of interview or hiring.**
 
-### 3. PostgreSQL Integration Status
-- The database schema, SQLAlchemy models, and Alembic migrations are architected and structured for PostgreSQL compatibility.
-- In the local testing and demonstration environment, migrations and tests are executed against **SQLite** (`sqlite:///./smarthire_dev.db`).
-- **PostgreSQL integration remains explicitly UNVERIFIED against a live PostgreSQL server** due to the absence of a running PostgreSQL or Docker service on the local host.
+### 3. Multi-Database Architecture & Verification Status
+- **SQLite (Development Default — Verified):** The primary local development database (`sqlite:///./smarthire_dev.db`). The 92-test automated backend test suite runs hermetically and passes against in-memory SQLite (`sqlite:///:memory:`).
+- **MySQL (Live Verified on MySQL 5.7+):** Fully verified against a live local MySQL instance (`MySQL57` on port 3306) via `PyMySQL` and connection recycling (`pool_recycle=3600`). All Alembic migrations, foreign key cascades, indexes, isolated CRUD operations, and full Playwright browser E2E workflows have been tested and verified passing on the dedicated `smarthire_test` database.
+- **PostgreSQL (Alembic Schema Ready — Unverified):** SQLAlchemy models and migrations are architected for PostgreSQL compatibility, but integration against a live PostgreSQL server remains unverified due to the absence of a running PostgreSQL service on the host.
 
 ### 4. High-Dimensional Clustering Behavior
 - In sparse TF-IDF Euclidean space, silhouette scores artificially rise with higher $K$ values ($K=10..15$) due to micro-clustering on the unit hypersphere rather than meaningful semantic partitioning.
@@ -357,6 +386,8 @@ smarthire/
 │   ├── figures/                     # Generated charts and diagrams
 │   ├── metrics/                     # Serialized JSON evaluation metrics
 │   └── screenshots/                 # Playwright visual regression screenshots
+├── scripts/                         # Operational & verification scripts
+│   └── verify_mysql.py              # Dedicated live MySQL verification workflow
 ├── src/                             # Python source package
 │   ├── backend/                     # FastAPI application
 │   │   ├── api/v1/                  # REST endpoints (auth, resumes, jobs, matching, recruiter)
@@ -395,7 +426,7 @@ smarthire/
 | **Frontend SPA** | React 18, TypeScript 5, Vite 5, Tailwind CSS, Lucide React |
 | **Backend REST API** | FastAPI 0.115, Uvicorn, Pydantic v2, Python-Jose (JWT), Passlib (Bcrypt) |
 | **Classical ML / NLP** | Scikit-Learn 1.3, NLTK, NumPy, Pandas, Joblib |
-| **Database & ORM** | SQLAlchemy 2.0, Alembic (SQLite in development; PostgreSQL ready) |
+| **Database & ORM** | SQLAlchemy 2.0, Alembic (SQLite verified; MySQL & PostgreSQL ready) |
 | **Testing & Automation** | Pytest, Vitest, Playwright, Chromium Headless |
 | **Storage & Security** | SHA-256 Content-Addressed Storage, Automated PII Redaction, RBAC |
 

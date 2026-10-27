@@ -40,12 +40,30 @@ test.describe('SmartHire 2.0 Browser E2E Test Suite', () => {
     // 3. Submit registration
     await page.locator('button[type="submit"]').click();
 
-    // 4. Assert arrival at Candidate Dashboard
+    // 4. Assert arrival at Candidate Dashboard (First-time login)
     await page.waitForURL('**/dashboard');
-    await expect(page.locator('h1')).toContainText('Welcome back, Alice Candidate E2E');
+    await expect(page.locator('h1')).toContainText('Welcome, Alice!');
+    await expect(
+      page.getByText('Welcome to SmartHire. Upload your resume to discover relevant jobs and analyze your skills.')
+    ).toBeVisible();
     await expect(page.getByText('Candidate Portal Active')).toBeVisible();
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '02_candidate_dashboard.png'), fullPage: true });
+
+    // 4b. Verify Theme Toggle: Dark, Light, System
+    const themeBtn = page.getByRole('button', { name: /Select color theme/i });
+    await expect(themeBtn).toBeVisible();
+    await themeBtn.click();
+    await page.getByRole('menuitem', { name: 'Dark' }).click();
+    await expect(page.locator('html')).toHaveClass(/dark/);
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '02b_candidate_dashboard_dark.png'), fullPage: true });
+
+    await themeBtn.click();
+    await page.getByRole('menuitem', { name: 'Light' }).click();
+    await expect(page.locator('html')).not.toHaveClass(/dark/);
+
+    await themeBtn.click();
+    await page.getByRole('menuitem', { name: 'System' }).click();
 
     // 5. Navigate to Resume Analyzer
     await page.getByRole('link', { name: 'Analyze Resume' }).first().click();
@@ -94,6 +112,16 @@ test.describe('SmartHire 2.0 Browser E2E Test Suite', () => {
     await expect(page.getByText('Experience Match (20%)')).toBeVisible();
 
     await page.screenshot({ path: path.join(SCREENSHOT_DIR, '04_job_match_details.png'), fullPage: true });
+
+    // 11b. Technical Skill Gap Analysis
+    await page.goto('/skill-gap');
+    await page.waitForURL('**/skill-gap');
+    await expect(page.locator('h1')).toContainText('Technical Skill-Gap Analysis');
+    await page.getByRole('button', { name: 'Run Skill-Gap Evaluation' }).click();
+    await expect(page.getByText('Skill Alignment')).toBeVisible();
+    await expect(page.getByText(/Matched Competencies/i)).toBeVisible();
+    await expect(page.getByText(/Missing Requirements/i)).toBeVisible();
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '04b_skill_gap_analysis.png'), fullPage: true });
 
     // 12. Candidate Profile Editing via Settings
     await page.goto('/settings');
@@ -155,6 +183,24 @@ test.describe('SmartHire 2.0 Browser E2E Test Suite', () => {
     await page.getByRole('button', { name: 'Sign Out' }).first().click();
     await page.waitForURL('**/');
 
+    // 15. Returning Candidate Login: Assert "Welcome back, Alice!"
+    await page.goto('/auth');
+    await page.locator('#email').fill(candidateEmail);
+    await page.locator('#password').fill(candidatePassword);
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL('**/dashboard');
+    await expect(page.locator('h1')).toContainText('Welcome back, Alice!');
+    await expect(
+      page.getByText('Upload your resume to extract validated technical skills, classify into industry categories, and discover jobs ranked with TF-IDF cosine similarity.')
+    ).toBeVisible();
+
+    await page.screenshot({ path: path.join(SCREENSHOT_DIR, '02c_candidate_dashboard_returning.png'), fullPage: true });
+
+    // Sign out again
+    await page.goto('/settings');
+    await page.getByRole('button', { name: 'Sign Out' }).first().click();
+    await page.waitForURL('**/');
+
     const fatalErrors = consoleErrors.filter(e => !e.includes('favicon'));
     expect(fatalErrors).toHaveLength(0);
   });
@@ -173,8 +219,12 @@ test.describe('SmartHire 2.0 Browser E2E Test Suite', () => {
     await page.locator('#password').fill(recruiterPassword);
     await page.locator('button[type="submit"]').click();
 
-    // 2. Verify Recruiter Dashboard
+    // 2. Verify Recruiter Dashboard (First-time login)
     await page.waitForURL('**/recruiter/dashboard');
+    await expect(page.getByText('Welcome, Bob!')).toBeVisible();
+    await expect(
+      page.getByText('Welcome to SmartHire. Review candidate submissions, audit recruiter workflow actions, and evaluate role alignment.')
+    ).toBeVisible();
     await expect(page.locator('h1')).toContainText('Recruiter Command Center');
     await expect(page.getByText('Total Ingested Candidates')).toBeVisible();
 
@@ -219,6 +269,22 @@ test.describe('SmartHire 2.0 Browser E2E Test Suite', () => {
     }
 
     // Sign out
+    await page.goto('/settings');
+    await page.getByRole('button', { name: 'Sign Out' }).first().click();
+    await page.waitForURL('**/');
+
+    // 8. Returning Recruiter Login: Assert "Welcome back, Bob!"
+    await page.goto('/auth');
+    await page.locator('#email').fill(recruiterEmail);
+    await page.locator('#password').fill(recruiterPassword);
+    await page.locator('button[type="submit"]').click();
+    await page.waitForURL('**/recruiter/dashboard');
+    await expect(page.getByText('Welcome back, Bob!')).toBeVisible();
+    await expect(
+      page.getByText('Monitor candidate submissions, audit recruiter workflow actions, and evaluate role alignment.')
+    ).toBeVisible();
+
+    // Sign out again
     await page.goto('/settings');
     await page.getByRole('button', { name: 'Sign Out' }).first().click();
     await page.waitForURL('**/');

@@ -94,10 +94,10 @@ export const ResumeAnalyzerPage: React.FC = () => {
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Resume Parser & NLP Classifier
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Extract technical skills via word-boundary regex and classify resumes into 25 categories
           with multiclass Logistic Regression.
         </p>
@@ -110,16 +110,16 @@ export const ResumeAnalyzerPage: React.FC = () => {
       )}
 
       {/* Input Selector Card */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
         {/* Tab Headers */}
-        <div className="flex border-b border-slate-200">
+        <div className="flex border-b border-slate-200 dark:border-slate-800">
           <button
             type="button"
             onClick={() => setActiveTab('upload')}
             className={`flex-1 py-3 px-4 text-sm font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
               activeTab === 'upload'
-                ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/40'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <Upload className="h-4 w-4" />
@@ -130,8 +130,8 @@ export const ResumeAnalyzerPage: React.FC = () => {
             onClick={() => setActiveTab('paste')}
             className={`flex-1 py-3 px-4 text-sm font-semibold flex items-center justify-center gap-2 border-b-2 transition-colors ${
               activeTab === 'paste'
-                ? 'border-indigo-600 text-indigo-600 bg-indigo-50/40'
-                : 'border-transparent text-slate-500 hover:text-slate-700'
+                ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/40 dark:bg-indigo-950/40'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <FileText className="h-4 w-4" />
@@ -141,7 +141,7 @@ export const ResumeAnalyzerPage: React.FC = () => {
 
         <div className="p-6">
           {activeTab === 'upload' ? (
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-indigo-400 transition-colors">
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-8 text-center hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors">
               <input
                 type="file"
                 id="resume-file"
@@ -150,17 +150,17 @@ export const ResumeAnalyzerPage: React.FC = () => {
                 className="hidden"
               />
               <label htmlFor="resume-file" className="cursor-pointer flex flex-col items-center">
-                <div className="h-12 w-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3">
+                <div className="h-12 w-12 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
                   <Upload className="h-6 w-6" />
                 </div>
-                <span className="text-sm font-semibold text-slate-900">
+                <span className="text-sm font-semibold text-slate-900 dark:text-white">
                   {selectedFile ? selectedFile.name : 'Click to select or drag and drop a resume'}
                 </span>
-                <span className="text-xs text-slate-400 mt-1">
+                <span className="text-xs text-slate-400 dark:text-slate-500 mt-1">
                   Supported formats: PDF, DOCX, TXT (Maximum file size: 10MB)
                 </span>
                 {selectedFile && (
-                  <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                     <CheckCircle className="h-3.5 w-3.5" />
                     Selected: {(selectedFile.size / 1024).toFixed(1)} KB
                   </span>
@@ -169,7 +169,7 @@ export const ResumeAnalyzerPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              <label htmlFor="raw-text" className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+              <label htmlFor="raw-text" className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Paste Resume Content
               </label>
               <textarea
@@ -178,18 +178,18 @@ export const ResumeAnalyzerPage: React.FC = () => {
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder="Paste the plain text of your resume here (experience, skills, education)..."
-                className="w-full p-3.5 border border-slate-300 rounded-xl text-sm placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 font-mono"
+                className="w-full p-3.5 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 rounded-xl text-sm placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 font-mono"
               />
-              <div className="flex justify-between text-xs text-slate-400 mt-1">
+              <div className="flex justify-between text-xs text-slate-400 dark:text-slate-500 mt-1">
                 <span>Minimum 10 characters</span>
                 <span>{rawText.length} characters</span>
               </div>
             </div>
           )}
 
-          <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100 flex-wrap gap-3">
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          <div className="mt-6 flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 flex-wrap gap-3">
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>PII is automatically masked; binaries are isolated in private storage.</span>
             </div>
 
@@ -209,54 +209,54 @@ export const ResumeAnalyzerPage: React.FC = () => {
       {/* Parse Results Presentation */}
       {parseResult && (
         <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5 flex-wrap gap-2">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-5 flex-wrap gap-2">
               <div>
-                <span className="text-xs font-mono text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-mono text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                   Verification Fingerprint
                 </span>
                 <div className="flex items-center gap-2 mt-1">
-                  <Hash className="h-4 w-4 text-indigo-600" />
-                  <span className="font-mono text-xs text-slate-700 select-all">
+                  <Hash className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <span className="font-mono text-xs text-slate-700 dark:text-slate-300 select-all">
                     {parseResult.sha256}
                   </span>
                 </div>
               </div>
 
-              <span className="text-xs text-slate-500 font-medium">
-                Document: <strong className="text-slate-800">{parseResult.original_filename}</strong> ({parseResult.file_size_bytes} bytes)
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Document: <strong className="text-slate-800 dark:text-slate-200">{parseResult.original_filename}</strong> ({parseResult.file_size_bytes} bytes)
               </span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Classification Prediction */}
-              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200">
-                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                   Predicted Job Category
                 </span>
-                <h3 className="text-xl font-bold text-slate-900 mt-1">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mt-1">
                   {parseResult.predicted_category}
                 </h3>
                 <div className="mt-3 flex items-center gap-2">
-                  <span className="text-xs font-medium text-slate-600">
+                  <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                     Model Confidence:
                   </span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
                     {(parseResult.category_confidence * 100).toFixed(1)}%
                   </span>
                 </div>
 
                 {/* Top Alternative Probabilities */}
                 {parseResult.category_probabilities && Object.keys(parseResult.category_probabilities).length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-slate-200">
-                    <p className="text-xs font-semibold text-slate-500 mb-2">
+                  <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">
                       Top Category Probabilities:
                     </p>
                     <div className="space-y-1.5">
                       {Object.entries(parseResult.category_probabilities).map(([cat, prob]) => (
                         <div key={cat} className="flex items-center justify-between text-xs">
-                          <span className="text-slate-700 truncate max-w-[200px]">{cat}</span>
-                          <span className="font-mono text-slate-500">{(prob * 100).toFixed(1)}%</span>
+                          <span className="text-slate-700 dark:text-slate-300 truncate max-w-[200px]">{cat}</span>
+                          <span className="font-mono text-slate-500 dark:text-slate-400">{(prob * 100).toFixed(1)}%</span>
                         </div>
                       ))}
                     </div>
@@ -265,9 +265,9 @@ export const ResumeAnalyzerPage: React.FC = () => {
               </div>
 
               {/* Extracted Skills */}
-              <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+              <div className="p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Extracted Technical Skills ({parseResult.extracted_skills.length})
                   </span>
                   <div className="mt-3 flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
@@ -276,62 +276,62 @@ export const ResumeAnalyzerPage: React.FC = () => {
                         <SkillPill key={skill} name={skill} variant="matched" />
                       ))
                     ) : (
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         No technical skills matched the current master skill lexicon.
                       </p>
                     )}
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-200 text-xs text-slate-400">
+                <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-400 dark:text-slate-500">
                   Extracted via isolated word boundaries to prevent token collision (e.g. isolating AI from mail).
                 </div>
               </div>
             </div>
 
             {/* PII-Redacted Text Preview */}
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
+            <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">
                 Sanitized Content Preview (PII Redacted)
               </span>
-              <pre className="p-3 bg-slate-100 rounded-lg text-xs font-mono text-slate-800 whitespace-pre-wrap max-h-36 overflow-y-auto border border-slate-200">
+              <pre className="p-3 bg-slate-100 dark:bg-slate-800/80 rounded-lg text-xs font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap max-h-36 overflow-y-auto border border-slate-200 dark:border-slate-700">
                 {parseResult.extracted_text_preview}
               </pre>
             </div>
           </div>
 
           {/* Quick Match Recommendations based on this Resume */}
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
-            <h3 className="font-bold text-slate-900 text-base mb-1">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">
               Top Ranked Job Recommendations for this Resume
             </h3>
-            <p className="text-xs text-slate-500 mb-4">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
               Scored with TF-IDF cosine similarity against processed repository job records
             </p>
 
             {loadingRecs ? (
-              <div className="py-6 text-center text-sm text-slate-400">Ranking jobs...</div>
+              <div className="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Ranking jobs...</div>
             ) : recs.length === 0 ? (
-              <p className="text-xs text-slate-400">No immediate matches found.</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">No immediate matches found.</p>
             ) : (
               <div className="space-y-3">
                 {recs.map((rec) => (
                   <div
                     key={rec.job_id}
-                    className="p-4 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-between flex-wrap gap-4"
+                    className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between flex-wrap gap-4"
                   >
                     <div>
-                      <span className="text-xs text-indigo-600 font-semibold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                      <span className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800">
                         {rec.category}
                       </span>
-                      <h4 className="font-semibold text-slate-900 text-sm mt-1">{rec.title}</h4>
-                      <p className="text-xs text-slate-500">{rec.company} • {rec.location}</p>
+                      <h4 className="font-semibold text-slate-900 dark:text-white text-sm mt-1">{rec.title}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{rec.company} • {rec.location}</p>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <div className="text-right">
-                        <span className="text-xs text-slate-400 block">Fit Index</span>
-                        <span className="font-bold text-slate-900 text-sm">{rec.fit_score}%</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500 block">Fit Index</span>
+                        <span className="font-bold text-slate-900 dark:text-white text-sm">{rec.fit_score}%</span>
                       </div>
                       <button
                         type="button"

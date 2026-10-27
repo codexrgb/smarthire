@@ -1,4 +1,4 @@
-# SmartHire 2.0 — FastAPI REST Backend & PostgreSQL Integration Guide
+# SmartHire 2.0 — FastAPI REST Backend & Multi-Database Integration Guide
 
 ## 1. Overview & Architecture
 
@@ -38,7 +38,10 @@ The SmartHire 2.0 backend is built with **FastAPI**, **SQLAlchemy ORM**, and **A
    ```
 2. Configure environment variables in `.env`:
    - `SECRET_KEY`: Minimum 32-character hex secret for signing JWTs.
-   - `DATABASE_URL`: PostgreSQL connection string (`postgresql://<user>:<password>@<host>:5432/<dbname>`). For local testing or offline development, SQLite (`sqlite:///./smarthire_dev.db`) is supported automatically.
+   - `DATABASE_URL`: Connection string. Supported configurations:
+     - **SQLite (Development Default — Verified):** `sqlite:///./smarthire_dev.db`
+     - **MySQL (Live Verified on MySQL 5.7+):** `mysql+pymysql://<user>:<password>@<host>:3306/<dbname>?charset=utf8mb4`
+     - **PostgreSQL (Alembic Schema Ready — Unverified):** `postgresql://<user>:<password>@<host>:5432/<dbname>`
    - `CORS_ORIGINS`: Comma-separated list of allowed web origins (e.g., `http://localhost:3000,http://localhost:5173,http://localhost:8501`).
    - `STORAGE_DIR`: Path to the directory where resume binaries are stored out of public web access.
 
@@ -70,6 +73,13 @@ When updating SQLAlchemy models in `src/backend/models/`:
 ```bash
 alembic revision --autogenerate -m "describe_changes_here"
 ```
+
+### Dedicated MySQL Verification Workflow
+To verify database migrations, schema structure, foreign keys, indexes, and isolated CRUD operations against a live MySQL instance without modifying production data:
+```bash
+python scripts/verify_mysql.py --url "mysql+pymysql://<user>:<password>@127.0.0.1:3306/<database>?charset=utf8mb4"
+```
+*(Or set the `MYSQL_TEST_DATABASE_URL` environment variable before running the script).*
 
 ---
 

@@ -54,10 +54,10 @@ export const JobExplorerPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
           Job Explorer
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
           Browse verified postings normalized from the SmartHire job corpus.
         </p>
       </div>
@@ -65,10 +65,10 @@ export const JobExplorerPage: React.FC = () => {
       {/* Search and Filters Card */}
       <form
         onSubmit={handleSearchSubmit}
-        className="bg-white rounded-xl border border-slate-200 p-4 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-3"
+        className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs grid grid-cols-1 sm:grid-cols-3 gap-3 transition-colors"
       >
         <div className="relative rounded-md shadow-2xs">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
             <Search className="h-4 w-4" />
           </div>
           <input
@@ -76,12 +76,12 @@ export const JobExplorerPage: React.FC = () => {
             placeholder="Search by job title, role..."
             value={titleFilter}
             onChange={(e) => setTitleFilter(e.target.value)}
-            className="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+            className="block w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
           />
         </div>
 
         <div className="relative rounded-md shadow-2xs">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-slate-500">
             <MapPin className="h-4 w-4" />
           </div>
           <input
@@ -89,7 +89,7 @@ export const JobExplorerPage: React.FC = () => {
             placeholder="Location filter (e.g. Remote, City)..."
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
-            className="block w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
+            className="block w-full pl-9 pr-3 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
           />
         </div>
 
@@ -109,7 +109,7 @@ export const JobExplorerPage: React.FC = () => {
               setLimit(20);
               getJobs({ limit: 20 }).then(setJobs);
             }}
-            className="px-3 py-2 border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors"
+            className="px-3 py-2 border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Reset
           </button>
@@ -117,16 +117,16 @@ export const JobExplorerPage: React.FC = () => {
       </form>
 
       {/* Results Header */}
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
         <span>
-          Showing <strong>{jobs.length}</strong> active job postings
+          Showing <strong className="text-slate-700 dark:text-slate-200">{jobs.length}</strong> active job postings
         </span>
         <div className="flex items-center gap-2">
           <span>Page limit:</span>
           <select
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="border border-slate-300 rounded px-2 py-1 text-xs bg-white text-slate-700"
+            className="border border-slate-300 dark:border-slate-700 rounded px-2 py-1 text-xs bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -137,16 +137,16 @@ export const JobExplorerPage: React.FC = () => {
 
       {/* Jobs Listing */}
       {loading ? (
-        <div className="py-16 text-center text-slate-400 text-sm">
+        <div className="py-16 text-center text-slate-400 dark:text-slate-500 text-sm">
           Loading postings from database...
         </div>
       ) : errorMsg ? (
         <div className="py-16 text-center text-rose-500 text-sm">{errorMsg}</div>
       ) : jobs.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-          <Briefcase className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="text-base font-semibold text-slate-900">No matching jobs found</h3>
-          <p className="text-xs text-slate-500 mt-1">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-12 text-center transition-colors">
+          <Briefcase className="h-10 w-10 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="text-base font-semibold text-slate-900 dark:text-white">No matching jobs found</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Try adjusting your title or location filter keywords.
           </p>
         </div>
@@ -164,36 +164,36 @@ export const JobExplorerPage: React.FC = () => {
             return (
               <div
                 key={job.job_id}
-                className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                       {job.category || 'General'}
                     </span>
-                    <span className="text-xs font-mono text-slate-400">ID: {job.job_id}</span>
+                    <span className="text-xs font-mono text-slate-400 dark:text-slate-500">ID: {job.job_id}</span>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900">{job.title}</h3>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{job.title}</h3>
 
-                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
-                    <span className="flex items-center gap-1 font-medium text-slate-700">
-                      <Building className="h-3.5 w-3.5 text-slate-400" />
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
+                      <Building className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                       {job.company}
                     </span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                      <MapPin className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                       {job.location}
                     </span>
                     {job.salary && job.salary !== 'N/A' && (
                       <span className="flex items-center gap-1">
-                        <DollarSign className="h-3.5 w-3.5 text-slate-400" />
+                        <DollarSign className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                         {job.salary}
                       </span>
                     )}
                     {job.experience && job.experience !== 'N/A' && (
                       <span className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5 text-slate-400" />
+                        <Clock className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                         {job.experience}
                       </span>
                     )}

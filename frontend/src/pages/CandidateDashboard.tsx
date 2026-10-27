@@ -16,6 +16,7 @@ import { StatCard } from '../components/common/StatCard';
 import { getJobs, getMyResumes, deleteResume } from '../api';
 import type { JobRecommendItem, ResumeSummaryOut } from '../api/types';
 import { Alert } from '../components/common/Alert';
+import { formatFirstName } from '../utils/name';
 
 export const CandidateDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -76,11 +77,14 @@ export const CandidateDashboard: React.FC = () => {
             <span>Candidate Portal Active</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Welcome back, {user?.full_name || 'Candidate'}
+            {user?.is_first_login
+              ? `Welcome, ${formatFirstName(user?.full_name, 'Candidate')}!`
+              : `Welcome back, ${formatFirstName(user?.full_name, 'Candidate')}!`}
           </h1>
           <p className="mt-2 text-sm text-slate-300 max-w-xl leading-relaxed">
-            Upload your resume to extract validated technical skills, classify into industry
-            categories, and discover jobs ranked with TF-IDF cosine similarity.
+            {user?.is_first_login
+              ? 'Welcome to SmartHire. Upload your resume to discover relevant jobs and analyze your skills.'
+              : 'Upload your resume to extract validated technical skills, classify into industry categories, and discover jobs ranked with TF-IDF cosine similarity.'}
           </p>
         </div>
 
@@ -143,11 +147,11 @@ export const CandidateDashboard: React.FC = () => {
       )}
 
       {/* Uploaded Resumes Portfolio */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Your Uploaded Resumes</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Your Uploaded Resumes</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Manage your parsed resumes, domain classification, and trigger matching
             </p>
           </div>
@@ -161,45 +165,45 @@ export const CandidateDashboard: React.FC = () => {
         </div>
 
         {loadingResumes ? (
-          <div className="py-8 text-center text-sm text-slate-400">Loading your resumes...</div>
+          <div className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">Loading your resumes...</div>
         ) : myResumes.length === 0 ? (
-          <div className="py-8 text-center text-sm text-slate-500 border border-dashed border-slate-200 rounded-lg p-6">
-            <p className="font-medium text-slate-700">No resumes uploaded yet</p>
-            <p className="text-xs text-slate-400 mt-1">
+          <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg p-6">
+            <p className="font-medium text-slate-700 dark:text-slate-300">No resumes uploaded yet</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
               Upload your resume to extract validated technical skills, classify career families, and view personalized matches.
             </p>
             <Link
               to="/resumes/analyze"
-              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors"
+              className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
             >
               <span>Upload Your First Resume</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {myResumes.map((res) => (
               <div key={res.id} className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <div className="h-9 w-9 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
                     <FileText className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-900 truncate max-w-xs">{res.original_filename}</h4>
-                    <p className="text-xs text-slate-400">
+                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-xs">{res.original_filename}</h4>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
                       Uploaded {new Date(res.uploaded_at).toLocaleDateString()} • {(res.file_size_bytes / 1024).toFixed(1)} KB
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                     {res.predicted_category} ({(res.category_confidence * 100).toFixed(0)}%)
                   </span>
 
                   <Link
                     to={`/matching?resume_id=${res.id}`}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors flex items-center gap-1"
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 transition-colors flex items-center gap-1"
                   >
                     <span>Match</span>
                     <ArrowRight className="h-3 w-3" />
@@ -209,7 +213,7 @@ export const CandidateDashboard: React.FC = () => {
                     type="button"
                     onClick={() => handleDeleteResume(res.id)}
                     disabled={deletingId === res.id}
-                    className="text-xs font-semibold px-2.5 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-50 flex items-center gap-1"
+                    className="text-xs font-semibold px-2.5 py-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50 flex items-center gap-1"
                     title="Delete resume"
                     aria-label={`Delete ${res.original_filename}`}
                   >
@@ -227,65 +231,65 @@ export const CandidateDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
           to="/resumes/analyze"
-          className="p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md transition-all group"
+          className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group"
         >
-          <div className="h-10 w-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <FileText className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-slate-900 text-base">Resume Analyzer</h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-base">Resume Analyzer</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Parse your resume, extract technical skills, and predict job category.
           </p>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 mt-4">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-4">
             Get started <ArrowRight className="h-3 w-3" />
           </span>
         </Link>
 
         <Link
           to="/matching"
-          className="p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md transition-all group"
+          className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group"
         >
-          <div className="h-10 w-10 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <GitCompare className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-slate-900 text-base">Job Match Details</h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-base">Job Match Details</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Compare candidate text directly with any job description for 3-part scoring.
           </p>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 mt-4">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 dark:text-purple-400 mt-4">
             Test compatibility <ArrowRight className="h-3 w-3" />
           </span>
         </Link>
 
         <Link
           to="/skill-gap"
-          className="p-5 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md transition-all group"
+          className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group"
         >
-          <div className="h-10 w-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+          <div className="h-10 w-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
             <TrendingUp className="h-5 w-5" />
           </div>
-          <h3 className="font-semibold text-slate-900 text-base">Skill Gap Analysis</h3>
-          <p className="text-xs text-slate-500 mt-1">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-base">Skill Gap Analysis</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Discover matched competencies and missing skills to guide career development.
           </p>
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 mt-4">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-4">
             Analyze gaps <ArrowRight className="h-3 w-3" />
           </span>
         </Link>
       </div>
 
       {/* Featured Jobs from Real Dataset */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Featured Job Openings</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Featured Job Openings</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Directly loaded from the normalized SmartHire dataset
             </p>
           </div>
           <Link
             to="/jobs"
-            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1"
           >
             <span>View all jobs</span>
             <ArrowRight className="h-3 w-3" />
@@ -293,9 +297,9 @@ export const CandidateDashboard: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="py-8 text-center text-sm text-slate-400">Loading dataset jobs...</div>
+          <div className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">Loading dataset jobs...</div>
         ) : recentJobs.length === 0 ? (
-          <div className="py-8 text-center text-sm text-slate-500">
+          <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
             No job records found. Make sure processed data exists in the backend.
           </div>
         ) : (
@@ -303,17 +307,17 @@ export const CandidateDashboard: React.FC = () => {
             {recentJobs.map((job) => (
               <div
                 key={job.job_id}
-                className="p-4 rounded-lg border border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-colors flex flex-col justify-between"
+                className="p-4 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                    <span className="font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span className="font-medium text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-100 dark:border-indigo-800">
                       {job.category || 'General'}
                     </span>
                     <span className="font-mono">{job.job_id}</span>
                   </div>
-                  <h4 className="font-semibold text-slate-900 text-sm">{job.title}</h4>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                  <h4 className="font-semibold text-slate-900 dark:text-white text-sm">{job.title}</h4>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1">
                       <Building className="h-3 w-3" />
                       {job.company}
@@ -325,13 +329,13 @@ export const CandidateDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
-                  <span className="text-xs text-slate-500 font-medium">
+                <div className="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
                     Exp: {job.experience || 'Not specified'}
                   </span>
                   <Link
                     to={`/matching?job_title=${encodeURIComponent(job.title)}&job_text=${encodeURIComponent(job.skills || '')}`}
-                    className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 flex items-center gap-1"
                   >
                     Match <ArrowRight className="h-3 w-3" />
                   </Link>
