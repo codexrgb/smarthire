@@ -7,6 +7,8 @@ import type {
   HealthResponse,
   ModelStatusResponse,
   ResumeParseResponse,
+  ResumeSummaryOut,
+  ResumeDetailOut,
   MatchScoreRequest,
   MatchScoreResponse,
   JobRecommendResponse,
@@ -47,6 +49,20 @@ export const parseResume = async (options: {
   return apiClient<ResumeParseResponse>('/api/v1/resumes/parse', {
     method: 'POST',
     body: formData,
+  });
+};
+
+export const getMyResumes = async (): Promise<ResumeSummaryOut[]> => {
+  return apiClient<ResumeSummaryOut[]>('/api/v1/resumes/my-resumes');
+};
+
+export const getResumeById = async (resumeId: string): Promise<ResumeDetailOut> => {
+  return apiClient<ResumeDetailOut>(`/api/v1/resumes/${resumeId}`);
+};
+
+export const deleteResume = async (resumeId: string): Promise<{ status: string; message: string }> => {
+  return apiClient<{ status: string; message: string }>(`/api/v1/resumes/${resumeId}`, {
+    method: 'DELETE',
   });
 };
 

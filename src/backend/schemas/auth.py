@@ -12,8 +12,8 @@ EMAIL_REGEX = re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
 
 class UserRegister(BaseModel):
-    email: str = Field(..., description="Valid user email address")
-    password: str = Field(..., min_length=8, description="Minimum 8 characters")
+    email: str = Field(..., max_length=255, description="Valid user email address")
+    password: str = Field(..., min_length=8, max_length=72, description="Between 8 and 72 characters")
     full_name: str = Field(..., min_length=2, max_length=100)
     role: str = Field(default="candidate", description="Allowed roles: 'candidate', 'recruiter'")
 

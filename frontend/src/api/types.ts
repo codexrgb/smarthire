@@ -108,6 +108,30 @@ export interface CandidateSummary {
   uploaded_at: string;
 }
 
+export interface ResumeSummaryOut {
+  id: string;
+  candidate_id?: string | null;
+  original_filename: string;
+  file_size_bytes: number;
+  sha256: string;
+  predicted_category: string;
+  category_confidence: number;
+  uploaded_at: string;
+}
+
+export interface ResumeDetailOut {
+  id: string;
+  candidate_id?: string | null;
+  original_filename: string;
+  file_size_bytes: number;
+  sha256: string;
+  predicted_category: string;
+  category_confidence: number;
+  extracted_skills: string[];
+  uploaded_at: string;
+  extracted_text_preview: string;
+}
+
 export interface RecruiterActionLogRequest {
   action_type: string;
   target_entity_type: string;

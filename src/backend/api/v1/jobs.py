@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from src.backend.database import get_db
 from src.backend.models.resume import Resume
+from src.backend.security.auth import get_optional_current_user, verify_resume_access
 from src.backend.schemas.job import (
     JobRecommendRequest, JobRecommendItem, JobRecommendResponse
 )
@@ -64,17 +65,26 @@ def get_recommendation_models():
 @router.post("/recommend", response_model=JobRecommendResponse)
 def get_job_recommendations(
     payload: JobRecommendRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_optional_current_user)
 ):
     """
     Ranks local job postings against candidate resume text using TF-IDF Cosine Similarity
     and transparent multi-factor compatibility scores.
     Supports either full text directly or looking up full clean_text by resume_id.
+    Strictly verifies ownership/role authorization when referencing stored candidate resumes.
     """
     resume_text = (payload.resume_text or "").strip()
     if payload.resume_id:
         resume_record = db.query(Resume).filter(Resume.id == payload.resume_id).first()
-        if resume_record and resume_record.clean_text:
+        if not resume_record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Resume record '{payload.resume_id}' not found."
+            )
+        # Enforce RBAC / candidate ownership
+        verify_resume_access(resume_record, current_user)
+        if resume_record.clean_text:
             resume_text = resume_record.clean_text.strip()
 
     if len(resume_text) < 10:

@@ -100,4 +100,38 @@ describe('API Integration & Client Service', () => {
       expect.any(Object)
     );
   });
+
+  it('clears auth token and dispatches smarthire:unauthorized event on 401 response', async () => {
+    setAuthToken('valid-token-before-expiry');
+    const unauthorizedHandler = vi.fn();
+    window.addEventListener('smarthire:unauthorized', unauthorizedHandler);
+
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      statusText: 'Unauthorized',
+      json: async () => ({ detail: 'Token has expired. Please log in again.' }),
+    });
+
+    await expect(getHealth()).rejects.toEqual(
+      expect.objectContaining({
+        status: 401,
+        detail: 'Token has expired. Please log in again.',
+      })
+    );
+
+    expect(unauthorizedHandler).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem('smarthire_token')).toBeNull();
+
+    window.removeEventListener('smarthire:unauthorized', unauthorizedHandler);
+  });
+
+  it('handles offline / network connection failures safely with status 0', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await expect(getHealth()).rejects.toEqual({
+      status: 0,
+      detail: 'Unable to connect to SmartHire API server. Please ensure the backend is running.',
+    });
+  });
 });

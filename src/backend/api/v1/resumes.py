@@ -6,7 +6,7 @@ Validates file formats, sizes, and malformed files; stores in private storage wi
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import (
     APIRouter, UploadFile, File, Form, HTTPException, status, Depends, Header
@@ -16,9 +16,13 @@ from sqlalchemy.orm import Session
 from src.backend.config import settings
 from src.backend.database import get_db
 from src.backend.models.resume import Resume
-from src.backend.schemas.resume import ResumeParseResponse
+from src.backend.schemas.resume import (
+    ResumeParseResponse, ResumeSummaryOut, ResumeDetailOut
+)
 from src.backend.storage.base import storage_service
-from src.backend.security.auth import decode_access_token
+from src.backend.security.auth import (
+    decode_access_token, get_current_user, get_optional_current_user, verify_resume_access
+)
 from src.parsing.resume_parser import extract_resume_text
 from src.features.text_features import extract_skills
 from src.models.classifier import predict_resume_category
@@ -149,3 +153,98 @@ async def parse_resume(
         status_message="Resume parsed successfully.",
         extracted_text_preview=redacted_preview
     )
+
+
+@router.get("/my-resumes", response_model=List[ResumeSummaryOut])
+def get_my_resumes(
+    current_user: dict = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Returns resumes uploaded by the currently authenticated user.
+    Strictly isolated: candidates can only list their own uploaded resumes.
+    """
+    resumes = db.query(Resume).filter(Resume.candidate_id == current_user["id"]).order_by(Resume.uploaded_at.desc()).all()
+    return [
+        ResumeSummaryOut(
+            id=r.id,
+            candidate_id=r.candidate_id,
+            original_filename=r.original_filename,
+            file_size_bytes=r.file_size_bytes,
+            sha256=r.sha256,
+            predicted_category=r.predicted_category,
+            category_confidence=r.category_confidence,
+            uploaded_at=r.uploaded_at.isoformat()
+        )
+        for r in resumes
+    ]
+
+
+@router.get("/{resume_id}", response_model=ResumeDetailOut)
+def get_resume_by_id(
+    resume_id: str,
+    db: Session = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_optional_current_user)
+):
+    """
+    Retrieves metadata and sanitized preview of a candidate resume.
+    Strictly enforces RBAC / candidate ownership verification.
+    """
+    resume = db.query(Resume).filter(Resume.id == resume_id).first()
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Resume record '{resume_id}' not found."
+        )
+
+    verify_resume_access(resume, current_user)
+
+    try:
+        skills = json.loads(resume.extracted_skills)
+    except Exception:
+        skills = []
+
+    return ResumeDetailOut(
+        id=resume.id,
+        candidate_id=resume.candidate_id,
+        original_filename=resume.original_filename,
+        file_size_bytes=resume.file_size_bytes,
+        sha256=resume.sha256,
+        predicted_category=resume.predicted_category,
+        category_confidence=resume.category_confidence,
+        extracted_skills=skills,
+        uploaded_at=resume.uploaded_at.isoformat(),
+        extracted_text_preview=redact_pii(resume.clean_text[:500])
+    )
+
+
+@router.delete("/{resume_id}")
+def delete_resume_by_id(
+    resume_id: str,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Deletes a candidate's resume from private storage and database.
+    Strictly enforces candidate ownership or recruiter/admin role.
+    """
+    resume = db.query(Resume).filter(Resume.id == resume_id).first()
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Resume record '{resume_id}' not found."
+        )
+
+    verify_resume_access(resume, current_user)
+
+    # Safe file deletion from private storage
+    if resume.storage_path:
+        try:
+            storage_service.delete_file(resume.storage_path)
+        except Exception as e:
+            logger.warning("Could not delete physical file for resume %s: %s", resume_id, str(e))
+
+    db.delete(resume)
+    db.commit()
+
+    return {"status": "success", "message": f"Resume '{resume_id}' deleted successfully."}

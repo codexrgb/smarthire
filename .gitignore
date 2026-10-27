@@ -49,4 +49,4 @@ htmlcov/
 *.db
 *.sqlite
 *.sqlite3
-storage/
+/storage/

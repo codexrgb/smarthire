@@ -5,6 +5,7 @@ Treats fit score as a multi-factor heuristic index, never a calibrated hiring pr
 """
 
 import joblib
+from typing import Optional
 from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm import Session
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -12,6 +13,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from src.backend.database import get_db
 from src.backend.models.resume import Resume
+from src.backend.security.auth import get_optional_current_user, verify_resume_access
 from src.backend.schemas.match import MatchScoreRequest, MatchScoreResponse
 from src.features.match_features import compute_pair_match_features
 from src.features.text_features import generate_skill_gap
@@ -49,11 +51,13 @@ def compute_pairwise_cosine_similarity(text_a: str, text_b: str) -> float:
 @router.post("/score", response_model=MatchScoreResponse)
 def calculate_match_score(
     payload: MatchScoreRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: Optional[dict] = Depends(get_optional_current_user)
 ):
     """
     Computes transparent multi-factor compatibility score between candidate resume and job posting.
     Supports either direct resume_text or looking up full clean_text by resume_id.
+    Strictly verifies ownership/role authorization when referencing stored candidate resumes.
 
     Formula:
       Fit Score = (0.50 * TextSimilarity + 0.30 * SkillOverlap + 0.20 * ExperienceMatch) * 100
@@ -64,6 +68,13 @@ def calculate_match_score(
     resume_text = (payload.resume_text or "").strip()
     if payload.resume_id:
         resume_record = db.query(Resume).filter(Resume.id == payload.resume_id).first()
+        if not resume_record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Resume record '{payload.resume_id}' not found."
+            )
+        # Enforce RBAC / candidate ownership
+        verify_resume_access(resume_record, current_user)
         if resume_record and resume_record.clean_text:
             resume_text = resume_record.clean_text.strip()
 
