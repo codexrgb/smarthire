@@ -1,4 +1,4 @@
-# SMART HIRE
+# SMART HIRE -->
 ### Resume-to-Job Matching & Career Guidance Engine
 
 > **IMPORTANT NOTICE:**
@@ -34,11 +34,15 @@ Datasets are cleaned (removing duplicates, handling missing values, filtering em
 
 ---
 
-## 🛡️ Academic Integrity: Real Data Mode vs. Demo Mode
+## 🛡️ Academic Integrity: Cryptographic Provenance & Mode Classification
 
-- **Real Data Mode:** When the required real datasets exist in `data/raw/`, SmartHire trains models on actual data and reports genuine evaluation metrics saved in `reports/metrics/`.
-- **Demo Mode:** If raw datasets are missing, SmartHire prints `"Required datasets are missing from data/raw/. Add the datasets and run training again."`, activates development fallback demo data, and displays a prominent warning banner across the web app:
-  `"DEMO MODE: Synthetic data is being used. These metrics must not be used as final project results."`
+SmartHire 2.0 enforces a strict 3-state dataset provenance architecture:
+- **Verified Authentic Mode (🟢):** Activated **only** when raw datasets match an authoritative cryptographic checksum manifest (`data/provenance_manifest.json`) recording source, open license, and verified origin.
+- **Unverified Mode (🟡):** Activated when non-synthetic datasets are present in `data/raw/` but lack verified cryptographic provenance manifests.
+- **Demo / Synthetic Mode (🔴):** Activated automatically whenever template generation signatures (e.g. `Experienced <Category> professional with X years...`) are detected. Displays a prominent warning banner across the web app:
+  `"⚠️ DEMO MODE ACTIVE: Synthetic template data detected. These metrics must not be used as final project results."`
+
+> **Critical Provenance Rule:** Filenames alone are never used to infer data authenticity.
 
 ---
 
@@ -82,24 +86,62 @@ python run_app.py
 streamlit run app/streamlit_app.py
 ```
 
-### 4. Run Unit Tests
+### 4. Run Unit & Integration Test Suite
 ```bash
-pytest -q
+pytest -v
 ```
+*Executes all 50 tests covering ML features, data provenance, notebook repairs, security sanitization, and FastAPI REST endpoints/RBAC persistence.*
+
+### 5. Run FastAPI REST Backend (SmartHire 2.0)
+```bash
+uvicorn src.backend.main:app --host 127.0.0.1 --port 8000 --reload
+```
+- Interactive Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+- Full API Reference: `docs/api_documentation.md`
+
+### 6. Database Migrations (PostgreSQL / Alembic)
+```bash
+# Upgrade to latest schema
+alembic upgrade head
+
+# Rollback one migration
+alembic downgrade -1
+```
+
+### 7. Run React + TypeScript + Vite Frontend (SmartHire 2.0)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+- Local Development Server: `http://localhost:5173`
+- Run Frontend Vitest Suite: `npm test`
+- Build Production Bundle: `npm run build`
+
+### 8. Ingest Authentic Dataset & Check Readiness
+```bash
+python src/data/ingest_dataset.py --check-status
+```
+*See `docs/dataset_ingestion.md` for the full authentic dataset importation protocol.*
 
 ---
 
 ## 📈 Metric Reporting & Saved Artifacts
 
-- **`models/`**: `classifier.pkl`, `tfidf_vectorizer.pkl`, `job_vectorizer.pkl`, `job_vectors.pkl`, `kmeans_clustering.pkl`
-- **`reports/metrics/`**: `classifier_metrics.json`, `clustering_metrics.json`, `pipeline_status.json`
-- **`reports/figures/`**: `confusion_matrix.png`, `elbow_curve.png`, `silhouette_scores.png`, `job_clusters_pca.png`
+- **Production Models:** `models/classifier.pkl`, `models/tfidf_vectorizer.pkl`, `models/job_vectorizer.pkl`, `models/job_vectors.pkl`, `models/kmeans_clustering.pkl`, `models/pca_2d.pkl`
+- **Primary Reports:** `reports/metrics/classifier_metrics.json`, `reports/metrics/clustering_metrics.json`, `reports/metrics/pipeline_status.json`
+- **Phase 1 Experimental Reports:**
+  - `reports/experiments/baseline_evaluation.md`: Benchmark comparison and label-leakage isolation.
+  - `reports/experiments/clustering_evaluation.md`: K=2..15 evaluations, high-dimensional text distance concentration, centroid terms, and external category validation.
+- **Figures:** `reports/figures/confusion_matrix.png`, `reports/figures/elbow_curve.png`, `reports/figures/silhouette_scores.png`, `reports/figures/job_clusters_pca.png`
+- **Repaired Notebooks:** `notebooks/repaired/` (JSON syntax repaired copies of `02` through `05`).
 
 ---
 
-## ⚠️ Limitations & Future Work
+## ⚠️ Limitations & Academic Disclosures
 
-1. **Skill Extraction Dictionary Dependence:** Skill extraction depends on the extendable technical skill dictionary and alias mapping (`SKILL_ALIAS_MAP`).
-2. **Lack of Ground-Truth Hiring Data:** Public job datasets do not provide historical candidate-job hiring ground truth labels.
-3. **Transparent Fit Score Labeling:** Fit scores therefore represent transparent matching scores based on text, skill, and experience features, not actual hiring probabilities.
-4. **Dataset Coverage:** Recommendation quality depends on the quality, coverage, and detail of the supplied local job datasets.
+1. **Synthetic Data Benchmark Isolation:** The current raw dataset in `data/raw/` is synthetic template data with label words in the first sentence. 100% reported accuracy reflects template memorization and cannot establish real-world generalization until an authentic, un-templated dataset is ingested.
+2. **Heuristic Fit Score Index:** The fit score is a deterministic weighted linear index ($50\%$ text similarity, $30\%$ skill overlap, $20\%$ experience match), NOT a trained, calibrated statistical hiring probability.
+3. **Clustering Silhouette Inflation:** In sparse high-dimensional TF-IDF Euclidean space, silhouette scores artificially rise with higher $K$ ($K=10..15$) due to micro-clustering around nearest neighbors on the unit hypersphere.
+4. **Skill Extraction Dictionary Dependence:** Skill extraction depends on the extendable technical skill dictionary and alias mapping (`SKILL_ALIAS_MAP`).

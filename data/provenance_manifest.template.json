@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Cryptographic Dataset Provenance Manifest for SmartHire 2.0",
+  "datasets": {
+    "UpdatedResumeDataSet_authentic.csv": {
+      "sha256": "<64-character lowercase hex sha256 checksum>",
+      "source": "https://www.kaggle.com/datasets/gauravduttakiit/resume-dataset",
+      "license": "CC-BY-SA-4.0",
+      "acquisition_date": "2026-10-26",
+      "is_authentic": true,
+      "description": "Genuine Kaggle resume dataset containing organic CVs across 25 categories."
+    }
+  }
+}

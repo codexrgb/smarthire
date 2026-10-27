@@ -44,3 +44,9 @@ data/raw/*.tar.gz
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Local databases & private storage
+*.db
+*.sqlite
+*.sqlite3
+storage/

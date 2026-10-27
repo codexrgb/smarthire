@@ -61,9 +61,8 @@ def load_processed_datasets():
     return resumes_df, jobs_df
 
 
-#@st.cache_data(ttl=5)
 def load_metrics_and_status():
-    """Loads evaluation metrics and pipeline demo mode status."""
+    """Loads evaluation metrics and pipeline demo mode status with provenance verification."""
     metrics = {}
 
     cls_path = METRICS_DIR / "classifier_metrics.json"
@@ -78,10 +77,30 @@ def load_metrics_and_status():
         with open(clst_path, "r") as f:
             metrics["clustering"] = json.load(f)
 
-    status_info = {"is_demo_mode": False}
+    status_info = {"is_demo_mode": True}
     if status_path.exists():
         with open(status_path, "r") as f:
             status_info = json.load(f)
+
+    # Perform runtime dataset provenance verification to prevent false "Real Data" claims
+    from src.data.provenance import (
+        assess_repository_datasets,
+        STATUS_VERIFIED_AUTHENTIC,
+        STATUS_DEMO_SYNTHETIC,
+        STATUS_UNKNOWN_UNVERIFIED
+    )
+    from src.config import RAW_DATA_DIR
+
+    prov_assessment = assess_repository_datasets(RAW_DATA_DIR)
+    status_info["provenance"] = prov_assessment
+
+    # Strict rule: NEVER declare real data mode unless provenance is cryptographically verified
+    if prov_assessment["overall_status"] != STATUS_VERIFIED_AUTHENTIC:
+        status_info["is_demo_mode"] = True
+        status_info["warning_message"] = prov_assessment["banner_message"]
+    else:
+        status_info["is_demo_mode"] = False
+        status_info["warning_message"] = None
 
     return metrics, status_info
 
@@ -98,6 +117,18 @@ def apply_custom_css():
             background-color: #fef2f2;
             border-left: 6px solid #ef4444;
             color: #991b1b;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .unverified-warning-banner {
+            background-color: #fffbeb;
+            border-left: 6px solid #f59e0b;
+            color: #92400e;
             padding: 14px 20px;
             border-radius: 8px;
             font-weight: 700;

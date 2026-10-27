@@ -25,6 +25,9 @@ from src.features.text_features import extract_skills, calculate_skill_match, ge
 from src.models.classifier import predict_resume_category
 from src.models.recommender import recommend_jobs
 from src.models.clustering import extract_nmf_topics
+from src.utils.security import (
+    escape_html_text, render_skill_pill, render_skill_pills, sanitize_job_card_meta
+)
 from app.utils import (
     load_trained_models, load_processed_datasets, load_metrics_and_status,
     apply_custom_css, SAMPLE_RESUMES
@@ -48,12 +51,21 @@ models = load_trained_models()
 resumes_df, jobs_df = load_processed_datasets()
 metrics, pipeline_status = load_metrics_and_status()
 
-# Demo Mode Warning Banner across App
-is_demo = pipeline_status.get("is_demo_mode", False)
-if is_demo:
-    st.markdown(f'<div class="demo-warning-banner">⚠️ {DEMO_WARNING_MESSAGE}</div>', unsafe_allow_html=True)
+# Dataset Provenance & Demo Mode Warning Banner across App
+prov = pipeline_status.get("provenance", {})
+prov_status = prov.get("overall_status", "demo_synthetic")
+
+if prov_status == "demo_synthetic":
+    banner_msg = prov.get("banner_message", f"⚠️ {DEMO_WARNING_MESSAGE}")
+    st.markdown(f'<div class="demo-warning-banner">{escape_html_text(banner_msg)}</div>', unsafe_allow_html=True)
+elif prov_status == "unknown_unverified":
+    banner_msg = prov.get("banner_message", "⚠️ UNVERIFIED DATASET: Dataset provenance has not been cryptographically verified. Results cannot be certified.")
+    st.markdown(f'<div class="unverified-warning-banner">{escape_html_text(banner_msg)}</div>', unsafe_allow_html=True)
+elif prov_status == "verified_authentic":
+    banner_msg = prov.get("banner_message", "🟢 VERIFIED DATA MODE ACTIVE: All models trained on verified authentic datasets.")
+    st.markdown(f'<div class="real-mode-banner">{escape_html_text(banner_msg)}</div>', unsafe_allow_html=True)
 else:
-    st.markdown('<div class="real-mode-banner">🟢 REAL DATA MODE ACTIVE: All models trained on real datasets.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="demo-warning-banner">⚠️ {escape_html_text(DEMO_WARNING_MESSAGE)}</div>', unsafe_allow_html=True)
 
 # Sidebar Navigation
 st.sidebar.title("Navigation")
@@ -123,10 +135,15 @@ if page == "📊 Dashboard":
         """, unsafe_allow_html=True)
 
     with col4:
-        mode_label = "Demo Mode 🟡" if is_demo else "Real Data 🟢"
+        if prov_status == "verified_authentic":
+            mode_label = "Verified Real 🟢"
+        elif prov_status == "unknown_unverified":
+            mode_label = "Unverified 🟡"
+        else:
+            mode_label = "Demo / Synthetic 🔴"
         st.markdown(f"""
         <div class="metric-card">
-            <div class="metric-value">{mode_label}</div>
+            <div class="metric-value">{escape_html_text(mode_label)}</div>
             <div class="metric-label">Dataset Engine Mode</div>
         </div>
         """, unsafe_allow_html=True)
@@ -202,7 +219,7 @@ elif page == "📄 Resume Analysis":
             extracted_skills = extract_skills(st.session_state.resume_text)
             st.markdown("#### 🛠️ 3. Extracted Skills")
             if extracted_skills:
-                pills_html = " ".join([f'<span class="skill-pill">{s}</span>' for s in extracted_skills])
+                pills_html = render_skill_pills(extracted_skills, pill_class="skill-pill")
                 st.markdown(pills_html, unsafe_allow_html=True)
             else:
                 st.warning("No standard technical skills detected from master dictionary.")
@@ -216,10 +233,11 @@ elif page == "📄 Resume Analysis":
                     models["classifier_vectorizer"]
                 )
 
+                cat_pred_esc = escape_html_text(cat_pred)
                 st.markdown(f"""
                 <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-bottom: 15px;">
                     <div style="font-size: 0.9rem; color: #166534; font-weight: 600;">PREDICTED CATEGORY</div>
-                    <div style="font-size: 1.8rem; color: #15803d; font-weight: 700;">{cat_pred}</div>
+                    <div style="font-size: 1.8rem; color: #15803d; font-weight: 700;">{cat_pred_esc}</div>
                     <div style="font-size: 0.85rem; color: #166534;">Confidence: <b>{conf*100:.1f}%</b></div>
                 </div>
                 """, unsafe_allow_html=True)
@@ -295,20 +313,23 @@ elif page == "🎯 Job Recommendations":
                 sim_score = row.get("similarity_score", 0.0) * 100.0
                 skill_pct = row.get("skill_match_pct", 0.0)
 
-                # Format dataset fields cleanly with N/A fallback
-                j_title = str(row.get("title", "N/A"))
-                j_comp = str(row.get("company", "N/A"))
-                j_loc = str(row.get("location", "N/A"))
-                j_exp = str(row.get("experience", "N/A"))
-                j_sal = str(row.get("salary", "N/A"))
+                # Format and sanitize dataset fields cleanly
+                meta = sanitize_job_card_meta(
+                    title=row.get("title", "N/A"),
+                    company=row.get("company", "N/A"),
+                    location=row.get("location", "N/A"),
+                    experience=row.get("experience", "N/A"),
+                    salary=row.get("salary", "N/A")
+                )
+                j_title_raw = str(row.get("title", "N/A"))
                 j_skills = str(row.get("skills", "N/A"))
 
                 st.markdown(f"""
                 <div class="job-card">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
                         <div>
-                            <div class="job-title">{j_title}</div>
-                            <div class="job-meta">🏢 <b>{j_comp}</b> &nbsp;|&nbsp; 📍 {j_loc} &nbsp;|&nbsp; 💼 {j_exp} &nbsp;|&nbsp; 💵 {j_sal}</div>
+                            <div class="job-title">{meta['title']}</div>
+                            <div class="job-meta">🏢 <b>{meta['company']}</b> &nbsp;|&nbsp; 📍 {meta['location']} &nbsp;|&nbsp; 💼 {meta['experience']} &nbsp;|&nbsp; 💵 {meta['salary']}</div>
                         </div>
                         <div style="text-align: right;">
                             <div style="font-size: 1.6rem; font-weight: 800; color: #2563eb;">{fit_score:.1f}%</div>
@@ -322,14 +343,14 @@ elif page == "🎯 Job Recommendations":
 
                 if j_skills != "N/A":
                     skill_list = [s.strip() for s in j_skills.split(",") if s.strip()]
-                    pills = " ".join([f'<span class="skill-pill">{s}</span>' for s in skill_list[:8]])
+                    pills = render_skill_pills(skill_list[:8], pill_class="skill-pill")
                     st.markdown(f"**Required Skills:** {pills}", unsafe_allow_html=True)
                 else:
                     st.markdown("**Required Skills:** N/A")
 
-                if st.button(f"Analyze Skill Gap for '{j_title}'", key=f"btn_rec_{idx}"):
+                if st.button(f"Analyze Skill Gap for '{j_title_raw}'", key=f"btn_rec_{idx}"):
                     st.session_state.selected_job = row.to_dict()
-                    st.success(f"Selected '{j_title}'! Head over to 'Skill Gap'.")
+                    st.success(f"Selected '{j_title_raw}'! Head over to 'Skill Gap'.")
 
                 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -362,10 +383,14 @@ elif page == "🧩 Skill Gap":
         matched_skills = gap_res["matched_skills"]
         missing_skills = gap_res["missing_skills"]
 
+        target_title_esc = escape_html_text(selected_title)
+        target_comp_esc = escape_html_text(str(target_row.get('company', 'N/A')))
+        target_loc_esc = escape_html_text(str(target_row.get('location', 'N/A')))
+
         st.markdown(f"""
         <div style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-            <h3>Target Role: <span style="color: #2563eb;">{selected_title}</span></h3>
-            <p style="color: #475569;">Company: <b>{target_row.get('company', 'N/A')}</b> | Location: <b>{target_row.get('location', 'N/A')}</b></p>
+            <h3>Target Role: <span style="color: #2563eb;">{target_title_esc}</span></h3>
+            <p style="color: #475569;">Company: <b>{target_comp_esc}</b> | Location: <b>{target_loc_esc}</b></p>
             <h2 style="color: {'#16a34a' if match_pct >= 70 else '#d97706' if match_pct >= 40 else '#dc2626'};">
                 Skill Match Percentage: {match_pct:.1f}%
             </h2>
@@ -377,14 +402,14 @@ elif page == "🧩 Skill Gap":
         with col_g1:
             st.markdown("#### ✅ Matched Skills")
             if matched_skills:
-                st.markdown(" ".join([f'<span class="matched-skill-pill">✓ {s}</span>' for s in matched_skills]), unsafe_allow_html=True)
+                st.markdown(render_skill_pills(matched_skills, pill_class="matched-skill-pill", prefix="✓ "), unsafe_allow_html=True)
             else:
                 st.warning("No overlapping skills detected.")
 
         with col_g2:
             st.markdown("#### ❌ Missing Skills")
             if missing_skills:
-                st.markdown(" ".join([f'<span class="missing-skill-pill">✗ {s}</span>' for s in missing_skills]), unsafe_allow_html=True)
+                st.markdown(render_skill_pills(missing_skills, pill_class="missing-skill-pill", prefix="✗ "), unsafe_allow_html=True)
             else:
                 st.success("No missing skills detected!")
 

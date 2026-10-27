@@ -14,32 +14,34 @@ from src.config import (
 )
 from src.data.preprocess import clean_text
 from src.data.generate_sample_data import ensure_sample_datasets_exist
+from src.data.provenance import (
+    assess_repository_datasets,
+    STATUS_VERIFIED_AUTHENTIC,
+    STATUS_DEMO_SYNTHETIC,
+    STATUS_UNKNOWN_UNVERIFIED
+)
 
 
 def check_real_datasets_exist(raw_dir: Path = RAW_DATA_DIR) -> Tuple[bool, List[str]]:
     """
-    Checks whether required real public datasets exist in data/raw/.
-
-    Required files:
-    - UpdatedResumeDataSet.csv
-    - naukri_com-job_sample.csv
-    - linkedin_job_postings.csv
+    Checks whether required authentic datasets exist in data/raw/ using cryptographic
+    and signature provenance checks, rather than checking file names alone.
 
     Returns:
-        Tuple[bool, List[str]]: (all_exist, missing_files_list)
+        Tuple[bool, List[str]]: (all_verified, missing_or_unverified_reasons)
     """
-    required_files = [
-        "UpdatedResumeDataSet.csv",
-        "naukri_com-job_sample.csv",
-        "linkedin_job_postings.csv"
-    ]
-    missing = []
-    for fname in required_files:
-        if not (raw_dir / fname).exists():
-            missing.append(fname)
+    assessment = assess_repository_datasets(raw_dir)
+    if assessment["overall_status"] == STATUS_VERIFIED_AUTHENTIC:
+        return True, []
 
-    all_exist = len(missing) == 0
-    return all_exist, missing
+    reasons = []
+    for fname, info in assessment["file_assessments"].items():
+        if info["status"] != STATUS_VERIFIED_AUTHENTIC:
+            file_reasons = info.get("reasons", [f"File '{fname}' is {info['status']}."])
+            for r in file_reasons:
+                reasons.append(f"{fname}: {r}")
+
+    return False, reasons
 
 
 def detect_column(df: pd.DataFrame, target_concept: str) -> Optional[str]:

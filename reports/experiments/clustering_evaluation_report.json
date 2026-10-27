@@ -1,0 +1,341 @@
+{
+  "experiment_name": "Job Family Clustering Evaluation & Interpretability Benchmark",
+  "dataset_rows": 200,
+  "feature_dimensions": 1722,
+  "k_range_evaluated": [
+    2,
+    15
+  ],
+  "k_evaluations": [
+    {
+      "k": 2,
+      "inertia": 182.46,
+      "silhouette_score": 0.0245,
+      "adjusted_rand_index": 0.0641,
+      "normalized_mutual_info": 0.3302,
+      "v_measure": 0.3302
+    },
+    {
+      "k": 3,
+      "inertia": 177.33,
+      "silhouette_score": 0.0357,
+      "adjusted_rand_index": 0.0893,
+      "normalized_mutual_info": 0.4424,
+      "v_measure": 0.4424
+    },
+    {
+      "k": 4,
+      "inertia": 172.39,
+      "silhouette_score": 0.0452,
+      "adjusted_rand_index": 0.1191,
+      "normalized_mutual_info": 0.5167,
+      "v_measure": 0.5167
+    },
+    {
+      "k": 5,
+      "inertia": 167.65,
+      "silhouette_score": 0.0595,
+      "adjusted_rand_index": 0.1787,
+      "normalized_mutual_info": 0.6023,
+      "v_measure": 0.6023
+    },
+    {
+      "k": 6,
+      "inertia": 163.29,
+      "silhouette_score": 0.0699,
+      "adjusted_rand_index": 0.2249,
+      "normalized_mutual_info": 0.6506,
+      "v_measure": 0.6506
+    },
+    {
+      "k": 7,
+      "inertia": 158.64,
+      "silhouette_score": 0.0802,
+      "adjusted_rand_index": 0.2414,
+      "normalized_mutual_info": 0.696,
+      "v_measure": 0.696
+    },
+    {
+      "k": 8,
+      "inertia": 154.77,
+      "silhouette_score": 0.0855,
+      "adjusted_rand_index": 0.3649,
+      "normalized_mutual_info": 0.761,
+      "v_measure": 0.761
+    },
+    {
+      "k": 9,
+      "inertia": 149.33,
+      "silhouette_score": 0.1018,
+      "adjusted_rand_index": 0.2869,
+      "normalized_mutual_info": 0.7529,
+      "v_measure": 0.7529
+    },
+    {
+      "k": 10,
+      "inertia": 146.2,
+      "silhouette_score": 0.1108,
+      "adjusted_rand_index": 0.4019,
+      "normalized_mutual_info": 0.7896,
+      "v_measure": 0.7896
+    },
+    {
+      "k": 11,
+      "inertia": 140.66,
+      "silhouette_score": 0.1231,
+      "adjusted_rand_index": 0.4728,
+      "normalized_mutual_info": 0.8284,
+      "v_measure": 0.8284
+    },
+    {
+      "k": 12,
+      "inertia": 136.86,
+      "silhouette_score": 0.1338,
+      "adjusted_rand_index": 0.4856,
+      "normalized_mutual_info": 0.8382,
+      "v_measure": 0.8382
+    },
+    {
+      "k": 13,
+      "inertia": 132.28,
+      "silhouette_score": 0.1473,
+      "adjusted_rand_index": 0.4408,
+      "normalized_mutual_info": 0.8439,
+      "v_measure": 0.8439
+    },
+    {
+      "k": 14,
+      "inertia": 128.73,
+      "silhouette_score": 0.1524,
+      "adjusted_rand_index": 0.5494,
+      "normalized_mutual_info": 0.874,
+      "v_measure": 0.874
+    },
+    {
+      "k": 15,
+      "inertia": 125.44,
+      "silhouette_score": 0.1604,
+      "adjusted_rand_index": 0.6349,
+      "normalized_mutual_info": 0.8918,
+      "v_measure": 0.8918
+    }
+  ],
+  "best_silhouette": {
+    "k": 15,
+    "score": 0.1604
+  },
+  "elbow_analysis": {
+    "suggested_elbow_k": 9,
+    "max_second_difference": 2.31,
+    "total_inertia_drop_percentage": 31.25,
+    "is_curve_diffuse": true,
+    "assessment": "The inertia curve exhibits gradual, diffuse decay (max second diff: 2.31). A sharp geometric elbow is absent. Domain-informed selection (e.g. matching major occupational job families) is more defensible than relying strictly on an ambiguous mathematical elbow."
+  },
+  "high_dimensional_text_analysis": "MATHEMATICAL MECHANISM BEHIND SILHOUETTE INCREASES: In sparse, high-dimensional TF-IDF Euclidean space, pairwise distances between text vectors concentrate near sqrt(2) (~1.414). As K increases, clusters partition into micro-clusters around nearest neighbors. This shrinks intra-cluster distances and mathematically inflates the silhouette score. However, this produces fragmented micro-shards rather than cohesive occupational families. Therefore, the highest silhouette score does NOT necessarily represent the best operational clustering.",
+  "cluster_interpretability": {
+    "k_5_terms": {
+      "0": [
+        "management",
+        "pmo",
+        "project",
+        "sales",
+        "project management",
+        "health",
+        "jira",
+        "stakeholder"
+      ],
+      "1": [
+        "developer",
+        "python",
+        "sql",
+        "data",
+        "etl",
+        "required",
+        "developer domain",
+        "sap"
+      ],
+      "2": [
+        "engineer",
+        "testing",
+        "required",
+        "autocad",
+        "engineering",
+        "network",
+        "security",
+        "network security"
+      ],
+      "3": [
+        "advocate",
+        "contract",
+        "contract negotiation",
+        "litigation",
+        "law",
+        "corporate law",
+        "corporate",
+        "arbitration"
+      ],
+      "4": [
+        "web",
+        "web designing",
+        "javascript",
+        "react",
+        "hr",
+        "web design",
+        "css",
+        "wordpress"
+      ]
+    },
+    "k_15_terms": {
+      "0": [
+        "dotnet",
+        "dotnet developer",
+        "csharp",
+        "server",
+        "sql server",
+        "framework",
+        "entity framework",
+        "entity"
+      ],
+      "1": [
+        "etl",
+        "etl developer",
+        "sql",
+        "database",
+        "ssis",
+        "informatica",
+        "data warehousing",
+        "warehousing"
+      ],
+      "2": [
+        "sap",
+        "sap developer",
+        "hana",
+        "sap hana",
+        "erp",
+        "sap mm",
+        "mm",
+        "erp sap"
+      ],
+      "3": [
+        "devops",
+        "devops engineer",
+        "engineer",
+        "kubernetes",
+        "jenkins",
+        "aws",
+        "ci",
+        "ci cd"
+      ],
+      "4": [
+        "hr",
+        "employee relations",
+        "employee",
+        "relations",
+        "acquisition",
+        "talent acquisition",
+        "talent",
+        "policies"
+      ],
+      "5": [
+        "network",
+        "network security",
+        "security",
+        "testing",
+        "security engineer",
+        "penetration testing",
+        "penetration",
+        "wireshark"
+      ],
+      "6": [
+        "web",
+        "web designing",
+        "javascript",
+        "react",
+        "web design",
+        "css",
+        "wordpress",
+        "figma"
+      ],
+      "7": [
+        "health",
+        "fitness",
+        "health fitness",
+        "training",
+        "personal",
+        "personal training",
+        "health assessment",
+        "assessment"
+      ],
+      "8": [
+        "management",
+        "pmo",
+        "project",
+        "jira",
+        "sales",
+        "project management",
+        "stakeholder",
+        "stakeholder management"
+      ],
+      "9": [
+        "electrical",
+        "electrical engineering",
+        "engineering",
+        "matlab",
+        "plc",
+        "power systems",
+        "power",
+        "scada"
+      ],
+      "10": [
+        "data science",
+        "science",
+        "data",
+        "learning",
+        "learn",
+        "scikit",
+        "scikit learn",
+        "pandas"
+      ],
+      "11": [
+        "advocate",
+        "contract",
+        "contract negotiation",
+        "litigation",
+        "law",
+        "corporate law",
+        "corporate",
+        "arbitration"
+      ],
+      "12": [
+        "python developer",
+        "developer",
+        "python",
+        "hadoop",
+        "java",
+        "postgresql",
+        "git",
+        "celery"
+      ],
+      "13": [
+        "blockchain",
+        "arts",
+        "writing",
+        "creative",
+        "creative writing",
+        "animation",
+        "web3",
+        "web3 js"
+      ],
+      "14": [
+        "mechanical",
+        "engineer",
+        "autocad",
+        "mechanical engineer",
+        "civil",
+        "solidworks",
+        "civil engineer",
+        "manufacturing"
+      ]
+    }
+  }
+}
