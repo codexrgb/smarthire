@@ -2,8 +2,21 @@
 Resume Schemas for SmartHire 2.0.
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from pydantic import BaseModel, Field, ConfigDict
+
+
+class ResumeValidationResponse(BaseModel):
+    is_valid: bool
+    confidence_category: str = Field(description="HIGH, MEDIUM, or LOW confidence category")
+    confidence_score: float = Field(description="Heuristic index from 0.0 to 1.0 (not a calibrated probability)")
+    score_label: str = "Heuristic Validation Index"
+    is_calibrated_probability: bool = False
+    document_type: str = Field(description="Detected document classification: resume, research_paper, invoice, etc.")
+    rejection_reason: Optional[str] = None
+    user_message: str
+    detected_sections: List[str] = Field(default_factory=list)
+    structural_signals: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ResumeParseResponse(BaseModel):
@@ -17,6 +30,7 @@ class ResumeParseResponse(BaseModel):
     category_probabilities: Dict[str, float]
     status_message: str
     extracted_text_preview: str = Field(description="First 500 characters of sanitized extracted text")
+    validation: Optional[ResumeValidationResponse] = None
 
 
 class ResumeSummaryOut(BaseModel):

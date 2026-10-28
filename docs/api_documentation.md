@@ -127,10 +127,38 @@ Returns loading status of ML model artifacts and dataset provenance markers.
 
 ---
 
-### Resume Ingestion & Parsing
+### Resume Validation & Ingestion
+
+#### `POST /api/v1/resumes/validate`
+Dedicated multi-signal document validator that accurately distinguishes legitimate resumes from research papers, academic assignments, invoices, standalone certificates, and unreadable files. Does NOT persist records or files to storage.
+- **Auth:** Optional
+- **Form Data:**
+  - `file`: Multipart binary document (`.pdf`, `.docx`, `.txt`).
+  - `raw_text`: Direct text string.
+  - `filename`: Optional document display name.
+- **Response `200 OK`:**
+  ```json
+  {
+    "is_valid": true,
+    "confidence_category": "HIGH",
+    "confidence_score": 0.95,
+    "score_label": "Heuristic Validation Index",
+    "is_calibrated_probability": false,
+    "document_type": "resume",
+    "rejection_reason": null,
+    "user_message": "Resume validated successfully.",
+    "detected_sections": ["Experience", "Education", "Skills"],
+    "structural_signals": {
+      "contact": { "has_email": true, "has_phone": true, "has_links": true },
+      "sections": { "detected_sections": ["Experience", "Education", "Skills"], "section_count": 3 },
+      "career": { "date_ranges_count": 2, "job_titles_count": 2 }
+    }
+  }
+  ```
 
 #### `POST /api/v1/resumes/parse`
 Parses candidate resumes from uploaded documents (`.pdf`, `.docx`, `.txt`) or raw text strings.
+**Crucial Validation Gate:** Enforces multi-signal document validation BEFORE saving to private storage, BEFORE creating database records, and BEFORE running ML classification or triggering job matching. If validation fails, returns `400 Bad Request` with structured feedback and persists nothing.
 - **Auth:** Optional (`Bearer <token>`). If authenticated, associates record with candidate account.
 - **Form Data:**
   - `file`: Multipart binary document (max 10MB; validated for `.pdf`, `.docx`, `.txt`).
@@ -151,10 +179,22 @@ Parses candidate resumes from uploaded documents (`.pdf`, `.docx`, `.txt`) or ra
       "Python Developer": 0.0381
     },
     "status_message": "Resume parsed successfully.",
-    "extracted_text_preview": "Alice Smith, Software Engineer..."
+    "extracted_text_preview": "Alice Smith, Software Engineer...",
+    "validation": {
+      "is_valid": true,
+      "confidence_category": "HIGH",
+      "confidence_score": 0.95,
+      "score_label": "Heuristic Validation Index",
+      "is_calibrated_probability": false,
+      "document_type": "resume",
+      "user_message": "Resume validated successfully.",
+      "detected_sections": ["Experience", "Education", "Skills"]
+    }
   }
   ```
-- **Security & Privacy:** The raw document binary is saved to private storage using SHA-256 sharded subpaths. No raw resume text, email addresses, or phone numbers are ever output to database logs or stdout.
+- **Error Responses:**
+  - `400 Bad Request`: When document validation fails (e.g. research papers, invoices, assignments, unreadable scans, corrupted files). Includes descriptive `detail` and prevents database insertion or storage.
+- **Security & Privacy:** The raw document binary is saved to private storage using SHA-256 sharded subpaths only AFTER passing validation. No raw resume text, email addresses, or phone numbers are ever output to database logs or stdout.
 
 ---
 

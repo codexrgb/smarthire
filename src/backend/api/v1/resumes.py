@@ -17,12 +17,13 @@ from src.backend.config import settings
 from src.backend.database import get_db
 from src.backend.models.resume import Resume
 from src.backend.schemas.resume import (
-    ResumeParseResponse, ResumeSummaryOut, ResumeDetailOut
+    ResumeParseResponse, ResumeSummaryOut, ResumeDetailOut, ResumeValidationResponse
 )
 from src.backend.storage.base import storage_service
 from src.backend.security.auth import (
     decode_access_token, get_current_user, get_optional_current_user, verify_resume_access
 )
+from src.backend.services.document_validation import validate_document
 from src.parsing.resume_parser import extract_resume_text
 from src.features.text_features import extract_skills
 from src.models.classifier import predict_resume_category
@@ -31,6 +32,48 @@ from src.utils.security import redact_pii
 
 logger = logging.getLogger("smarthire.api.resumes")
 router = APIRouter(prefix="/resumes", tags=["Resumes"])
+
+
+@router.post("/validate", response_model=ResumeValidationResponse)
+async def validate_resume_document(
+    file: Optional[UploadFile] = File(None),
+    raw_text: Optional[str] = Form(None),
+    filename: Optional[str] = Form(None),
+):
+    """
+    Validates uploaded document or raw text against multi-signal resume criteria.
+    Accurately classifies document as resume, research paper, invoice, assignment, etc.
+    Returns structured validation result with confidence category, score, and user guidance.
+    """
+    content_bytes = None
+    target_filename = filename or "document.txt"
+
+    if file is not None:
+        target_filename = file.filename or "document.txt"
+        ext = Path(target_filename).suffix.lower()
+        if ext not in settings.ALLOWED_EXTENSIONS:
+            return ResumeValidationResponse(
+                is_valid=False,
+                confidence_category="HIGH",
+                confidence_score=0.99,
+                document_type="unsupported_format",
+                rejection_reason=f"Unsupported file format '{ext}'. Supported formats: {', '.join(settings.ALLOWED_EXTENSIONS)}",
+                user_message="This document does not appear to be a resume. Please upload your resume in PDF or DOCX format."
+            )
+
+        content_bytes = await file.read()
+        if len(content_bytes) > settings.MAX_UPLOAD_SIZE_BYTES:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File size exceeds maximum allowed limit of {settings.MAX_UPLOAD_SIZE_MB}MB."
+            )
+
+    val_res = validate_document(
+        content_bytes=content_bytes,
+        filename=target_filename,
+        raw_text=raw_text
+    )
+    return ResumeValidationResponse(**val_res.to_dict())
 
 
 @router.post("/parse", response_model=ResumeParseResponse)
@@ -44,6 +87,7 @@ async def parse_resume(
     """
     Parses resume from uploaded document (.pdf, .docx, .txt) or direct text.
     Validates file extension, size limit, and malformed content.
+    Enforces multi-signal document validation BEFORE storage or DB persistence.
     Extracts plain text, skills, and predicted job category.
     Stores raw binary in private storage without exposing PII in logs.
     """
@@ -85,6 +129,20 @@ async def parse_resume(
                 detail="Uploaded file is empty (0 bytes)."
             )
 
+        # Multi-signal resume validation before persisting or parsing
+        val_res = validate_document(content_bytes=content_bytes, filename=target_filename)
+        if not val_res.is_valid:
+            logger.warning(
+                "Document rejected by resume validator: type=%s, category=%s, reason=%s",
+                val_res.document_type,
+                val_res.confidence_category,
+                val_res.rejection_reason
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=val_res.user_message
+            )
+
         # Extract text via parser module
         extracted_text, msg = extract_resume_text(content_bytes, target_filename)
         if not extracted_text or not extracted_text.strip():
@@ -99,8 +157,22 @@ async def parse_resume(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Resume text too short (minimum 10 characters required)."
             )
-        content_bytes = extracted_text.encode("utf-8")
+
         target_filename = filename or "pasted_resume.txt"
+        val_res = validate_document(raw_text=extracted_text, filename=target_filename)
+        if not val_res.is_valid:
+            logger.warning(
+                "Text input rejected by resume validator: type=%s, category=%s, reason=%s",
+                val_res.document_type,
+                val_res.confidence_category,
+                val_res.rejection_reason
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=val_res.user_message
+            )
+
+        content_bytes = extracted_text.encode("utf-8")
     else:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -151,7 +223,8 @@ async def parse_resume(
         category_confidence=conf,
         category_probabilities=top_probs,
         status_message="Resume parsed successfully.",
-        extracted_text_preview=redacted_preview
+        extracted_text_preview=redacted_preview,
+        validation=ResumeValidationResponse(**val_res.to_dict())
     )
 
 

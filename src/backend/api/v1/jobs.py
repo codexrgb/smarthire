@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from src.backend.database import get_db
 from src.backend.models.resume import Resume
 from src.backend.security.auth import get_optional_current_user, verify_resume_access
+from src.backend.services.document_validation import validate_document
 from src.backend.schemas.job import (
     JobRecommendRequest, JobRecommendItem, JobRecommendResponse
 )
@@ -92,6 +93,15 @@ def get_job_recommendations(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Resume text or valid parsed resume must contain at least 10 characters."
         )
+
+    # Validate raw resume text if no stored resume_id was provided
+    if not payload.resume_id:
+        val = validate_document(raw_text=resume_text)
+        if not val.is_valid:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot recommend jobs: {val.user_message}"
+            )
 
     jobs_df = get_jobs_data()
     if jobs_df.empty:

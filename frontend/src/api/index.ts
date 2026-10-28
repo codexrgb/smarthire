@@ -7,6 +7,7 @@ import type {
   HealthResponse,
   ModelStatusResponse,
   ResumeParseResponse,
+  ResumeValidationResponse,
   ResumeSummaryOut,
   ResumeDetailOut,
   MatchScoreRequest,
@@ -27,6 +28,29 @@ export const getHealth = async (): Promise<HealthResponse> => {
 
 export const getModelsStatus = async (): Promise<ModelStatusResponse> => {
   return apiClient<ModelStatusResponse>('/api/v1/models/status');
+};
+
+// Resume Validation
+export const validateResume = async (options: {
+  file?: File;
+  rawText?: string;
+  filename?: string;
+}): Promise<ResumeValidationResponse> => {
+  const formData = new FormData();
+  if (options.file) {
+    formData.append('file', options.file, options.file.name);
+  }
+  if (options.rawText) {
+    formData.append('raw_text', options.rawText);
+  }
+  if (options.filename) {
+    formData.append('filename', options.filename);
+  }
+
+  return apiClient<ResumeValidationResponse>('/api/v1/resumes/validate', {
+    method: 'POST',
+    body: formData,
+  });
 };
 
 // Resume Parsing

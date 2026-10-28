@@ -20,6 +20,11 @@ export const ResumeAnalyzerPage: React.FC = () => {
   const [rawText, setRawText] = useState<string>('');
   const [isParsing, setIsParsing] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [validationFeedback, setValidationFeedback] = useState<{
+    type: 'invalid' | 'unreadable' | 'uncertain' | 'error';
+    title: string;
+    message: string;
+  } | null>(null);
   const [parseResult, setParseResult] = useState<ResumeParseResponse | null>(null);
 
   // Recommendations state
@@ -30,6 +35,7 @@ export const ResumeAnalyzerPage: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMsg(null);
+    setValidationFeedback(null);
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const ext = file.name.slice(file.name.lastIndexOf('.')).toLowerCase();
@@ -47,6 +53,7 @@ export const ResumeAnalyzerPage: React.FC = () => {
 
   const handleAnalyze = async () => {
     setErrorMsg(null);
+    setValidationFeedback(null);
     setParseResult(null);
     setRecs([]);
 
@@ -84,8 +91,45 @@ export const ResumeAnalyzerPage: React.FC = () => {
       const detail =
         typeof apiErr.detail === 'string'
           ? apiErr.detail
-          : apiErr.message || 'Failed to parse resume. Check document format.';
-      setErrorMsg(detail);
+          : Array.isArray(apiErr.detail) && apiErr.detail[0]?.msg
+            ? apiErr.detail[0].msg
+            : apiErr.message || 'Failed to parse resume. Check document format.';
+
+      const detailLower = detail.toLowerCase();
+      if (
+        detailLower.includes('does not appear to be a resume') ||
+        detailLower.includes('research paper') ||
+        detailLower.includes('invoice') ||
+        detailLower.includes('assignment')
+      ) {
+        setValidationFeedback({
+          type: 'invalid',
+          title: 'Invalid Document',
+          message: detail,
+        });
+      } else if (
+        detailLower.includes('readable text could not be extracted') ||
+        detailLower.includes('unreadable') ||
+        detailLower.includes('scanned pdf')
+      ) {
+        setValidationFeedback({
+          type: 'unreadable',
+          title: 'Unreadable Document',
+          message: detail,
+        });
+      } else if (
+        detailLower.includes('could not be verified as a resume') ||
+        detailLower.includes('clearer or more complete resume') ||
+        detailLower.includes('ambiguous')
+      ) {
+        setValidationFeedback({
+          type: 'uncertain',
+          title: 'Uncertain Document',
+          message: detail,
+        });
+      } else {
+        setErrorMsg(detail);
+      }
     } finally {
       setIsParsing(false);
     }
@@ -102,6 +146,16 @@ export const ResumeAnalyzerPage: React.FC = () => {
           with multiclass Logistic Regression.
         </p>
       </div>
+
+      {validationFeedback && (
+        <Alert
+          type={validationFeedback.type === 'invalid' || validationFeedback.type === 'error' ? 'error' : 'warning'}
+          title={validationFeedback.title}
+          onClose={() => setValidationFeedback(null)}
+        >
+          {validationFeedback.message}
+        </Alert>
+      )}
 
       {errorMsg && (
         <Alert type="error" onClose={() => setErrorMsg(null)}>
@@ -227,6 +281,23 @@ export const ResumeAnalyzerPage: React.FC = () => {
                 Document: <strong className="text-slate-800 dark:text-slate-200">{parseResult.original_filename}</strong> ({parseResult.file_size_bytes} bytes)
               </span>
             </div>
+
+            {parseResult.validation && (
+              <div className="mb-5 p-3.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                  <span className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                    Validated Resume ({parseResult.validation.confidence_category} Confidence)
+                  </span>
+                </div>
+                {parseResult.validation.detected_sections && parseResult.validation.detected_sections.length > 0 && (
+                  <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300">
+                    <span className="font-medium text-emerald-800 dark:text-emerald-200">Sections identified:</span>
+                    <span>{parseResult.validation.detected_sections.join(', ')}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Classification Prediction */}

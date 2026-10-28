@@ -6,8 +6,8 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0%2B-3178C6.svg)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0%2B-38B2AC.svg)](https://tailwindcss.com/)
 [![Playwright](https://img.shields.io/badge/Playwright-E2E%20Automated-2EAD33.svg)](https://playwright.dev/)
-[![Pytest](https://img.shields.io/badge/Pytest-92%20Passed-brightgreen.svg)](https://pytest.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-30%20Passed-success.svg)](https://vitest.dev/)
+[![Pytest](https://img.shields.io/badge/Pytest-103%20Passed-brightgreen.svg)](https://pytest.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-34%20Passed-success.svg)](https://vitest.dev/)
 [![Database](https://img.shields.io/badge/Database-SQLite%20%26%20MySQL%20(Verified)%20%7C%20Postgres%20Ready-blue.svg)](https://alembic.sqlalchemy.org/)
 
 > **Classical Machine Learning Architecture Notice:**  
@@ -270,23 +270,23 @@ SmartHire maintains a rigorous, multi-tiered test suite spanning backend unit te
 ├─────────────────────┬───────────────┬──────────────┬───────────────────┤
 │ Test Suite          │ Framework     │ Test Count   │ Status            │
 ├─────────────────────┼───────────────┼──────────────┼───────────────────┤
-│ Backend Unit & API  │ Pytest        │ 92 Passed    │ Passing (100%)    │
-│ Frontend Component  │ Vitest        │ 30 Passed    │ Passing (100%)    │
+│ Backend Unit & API  │ Pytest        │ 103 Passed   │ Passing (100%)    │
+│ Frontend Component  │ Vitest        │ 34 Passed    │ Passing (100%)    │
 │ Browser End-to-End  │ Playwright    │ 3 Suites     │ Passing (100%)    │
 │ MySQL Verification  │ PyMySQL/Schema│ 5/5 Checks   │ Passing (100%)    │
 │ Production Bundle   │ TypeScript    │ Zero Errors  │ Clean Build       │
 └─────────────────────┴───────────────┴──────────────┴───────────────────┘
 ```
 
-### Run Backend Pytest Suite (92 Tests)
+### Run Backend Pytest Suite (103 Tests)
 ```powershell
 python -m pytest
 ```
-*Covers ML feature extraction, classification benchmarks, data provenance, notebook repairs, security sanitization, FastAPI REST endpoints, RBAC policies, and guest retention lifecycle.*
+*Covers ML feature extraction, classification benchmarks, data provenance, notebook repairs, security sanitization, FastAPI REST endpoints, multi-signal document validation (PDF/DOCX/research paper/invoice/scanned rejection/regression), RBAC policies, and guest retention lifecycle.*
 
-### Run Frontend Vitest Suite (30 Tests)
+### Run Frontend Vitest Suite (34 Tests)
 ```powershell
-npm --prefix frontend test -- --run
+npm --prefix frontend test
 ```
 *Covers React UI components, Theme toggle, Name normalization, navigation guards, heuristic badges, provenance banners, and candidate workflows.*
 

@@ -49,6 +49,19 @@ export interface ModelStatusResponse {
   demo_warning_active: boolean;
 }
 
+export interface ResumeValidationResponse {
+  is_valid: boolean;
+  confidence_category: 'HIGH' | 'MEDIUM' | 'LOW';
+  confidence_score: number;
+  score_label: string;
+  is_calibrated_probability: boolean;
+  document_type: string;
+  rejection_reason?: string | null;
+  user_message: string;
+  detected_sections: string[];
+  structural_signals?: Record<string, any>;
+}
+
 export interface ResumeParseResponse {
   resume_id: string;
   original_filename: string;
@@ -60,6 +73,7 @@ export interface ResumeParseResponse {
   category_probabilities: Record<string, number>;
   status_message: string;
   extracted_text_preview: string;
+  validation?: ResumeValidationResponse;
 }
 
 export interface MatchScoreRequest {
